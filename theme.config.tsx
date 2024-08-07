@@ -15,5 +15,8 @@ export default {
       titleTemplate: `%s – ${siteName}`,
     };
   },
+  footer: {
+    text: `© 2024-present ${siteName}`,
+  },
   ...NextraConfig,
 };
