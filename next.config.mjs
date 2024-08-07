@@ -2,7 +2,10 @@ import nextra from "nextra";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "export" // if want use ssr, remove this.
+  output: "export", // if want use ssr, remove this.
+  images: {
+    unoptimized: true, // image optimization cannot work with ssg
+  }
 }
 
 const withNextra = nextra({
