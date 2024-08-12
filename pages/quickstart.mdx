@@ -1,0 +1,53 @@
+&emsp;&emsp;在本章之中，您将了解如何安装、使用 swpp。
+
+## 结构介绍
+
+&emsp;&emsp;swpp 将实现分为了前端实现和后端实现，其中后端实现是唯一的，而前端实现在不同平台会有不同的实现。
+
+&emsp;&emsp;swpp 对前端的具体实现没有太多限制，所以前端实现的安装、使用方法请阅读其提供的文档。下文中将为您介绍后端的安装、使用方法。
+
+&emsp;&emsp;下面是已知的前端实现：
+
+|  平台  |     插件名     |                            文档                             |           作者            |
+|:----:|:-----------:|:---------------------------------------------------------:|:-----------------------:|
+| hexo | `hexo-swpp` | [github](https://github.com/EmptyDreams/hexo-swpp#readme) | [空梦](https://kmar.top/) |
+
+&emsp;&emsp;注：后文中 `swpp` 均指 `swpp-backends`，也就是后端实现，如果需要表示前端实现，则会在提到时点明。
+
+## 安装
+
+&emsp;&emsp;注：本文中统一使用 `npm` 指令，您可以根据您的喜好将其替换为其它管理器的指令。
+
+&emsp;&emsp;在项目中安装 swpp 后端非常简单，只需要运行下面的指令即可：
+
+```bash
+npm install swpp-backends
+```
+
+## 创建配置文件
+
+&emsp;&emsp;swpp 支持以下类型的配置文件：`ts` `js` `mts` `cts` `mjs` `cjs`。
+
+&emsp;&emsp;配置文件的文件名及所在路径请见您使用的前端实现的文档，此处我们假设配置文件名称为 `swpp.config.ts`。
+
+&emsp;&emsp;接下来需要在其中填入下面的内容（注意将 `DOMAIN_HOST` 替换为您的 host）：
+
+```typescript
+import { SwppConfigTemplate } from 'swpp-backends/dist/swpp/config/ConfigCluster'
+
+export default {
+
+    compilationEnv: {
+        // 此项是必须配置的项目，swpp 必须知道您的域名才能区分哪些资源是外部资源。
+        // 部分前端实现可能会帮您自动填写该项目，具体是否必须手动填写请见前端实现的文档。
+        DOMAIN_HOST: 'www.example.com'
+    }
+
+} as SwppConfigTemplate
+```
+
+&emsp;&emsp;此时您就完成了配置 swpp 所必须的步骤。
+
+## 生成 sw 与数据
+
+&emsp;&emsp;生成 sw 与数据文件的操作视前端的具体实现而定。
