@@ -19,5 +19,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "redish101-shared-config": "^1.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "eslint-config-next": "14.2.5"
   }
 }
