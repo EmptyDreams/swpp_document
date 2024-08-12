@@ -1,5 +1,5 @@
 import React from "react";
-import NextraConfig from "redish101-shared-config/nextra";
+import nextraConfig from "redish101-shared-config/nextra";
 
 const siteName = "swpp"
 
@@ -18,5 +18,5 @@ export default {
   footer: {
     text: `© 2024-present ${siteName}`,
   },
-  ...NextraConfig,
+  ...nextraConfig,
 };
