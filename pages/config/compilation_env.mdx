@@ -148,7 +148,7 @@ export default {
    * 当拉取文件报错时通过该函数判断是否是 404
    * @return 返回 `true` 表示判定为 404
    */
-  error: (err: any) => err?.cause?.code === "ENOTFOUND",
+  error: (err: any) => err?.cause?.code === 'ENOTFOUND',
 };
 ```
 
