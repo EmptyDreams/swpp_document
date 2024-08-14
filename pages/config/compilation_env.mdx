@@ -4,18 +4,11 @@
 
 ## DOMAIN_HOST
 
-|   类型   | 说明      |      默认值       |
-| :------: | :-------- | :---------------: |
-| `string` | 网站 host | `www.example.com` |
+| 类型  | 说明     |                默认值                |
+| :---: | :------- | :----------------------------------: |
+| `URL` | 网站地址 | `new URL('https://www.example.com')` |
 
-&emsp;&emsp;该项用于告知 swpp 您的网站的 host。（如果您不知道什么是 host 请见：[URL：host 属性](https://developer.mozilla.org/zh-CN/docs/Web/API/URL/host)）
-
-&emsp;&emsp;下面是一些示例：
-
-- `www.example.com` - 合法
-- `https://www.example.com` - 非法，不应当包含协议名
-- `www.example.com/` - 非法，不应当包含 pathname
-- `www.example.com:8080` - 合法，如果使用非默认端口，应当包含端口号
+&emsp;&emsp;该项用于告知 swpp 您的网站所在的 URL 地址，swpp 通过该属性判断一个资源是否是外部资源、计算 swpp 文件在线上的地址。
 
 ## SERVICE_WORKER
 
@@ -172,11 +165,3 @@ export default {
 - `REJECT_ALL`: 不允许任何形式的 404 错误
 
 &emsp;&emsp;当遇到不允许的 404 错误时 swpp 将直接结束构建，设置合理的报错等级可以防止网站被错误地部署到线上，从而导致历史版本丢失。
-
-## FILE_PARSER
-
-|         类型         | 说明       |        默认值        |
-| :------------------: | :--------- | :------------------: |
-| `FileParserRegistry` | 文件处理器 | `FileParserRegistry` |
-
-&emsp;&emsp;该配置项用于处理、解析文件的内容，内置的实现已经可以满足大多数场景的需求，一般情况下不需要覆盖该项，具体使用方法后面会专门介绍。

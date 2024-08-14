@@ -30,9 +30,9 @@ import { Tabs } from "nextra/components";
         支持的话还可以提供自动补全。下面是一段示例代码，其中列出了 swpp 内置的所有可调节配置分类：
 
         ```typescript
-        import {SwppConfigTemplate} from 'swpp-backends/dist/swpp/config/ConfigCluster'
+        import {defineConfig} from 'swpp-backends'
 
-        export default {
+        export default defineConfig({
 
             compilationEnv: {},
             crossEnv: {},
@@ -41,9 +41,10 @@ import { Tabs } from "nextra/components";
             runtimeCore: {},
             runtimeEvent: {},
             domConfig: {},
+            compilationFileParser: {},
             modifier: {}
 
-        } as SwppConfigTemplate
+        })
         ```
     </Tabs.Tab>
     <Tabs.Tab>
@@ -51,24 +52,25 @@ import { Tabs } from "nextra/components";
 
         ```typescript
         import {
-            SwppConfigCompilationEnv, SwppConfigCrossEnv, SwppConfigRuntimeDep,
-            SwppConfigCrossDep, SwppConfigRuntimeCore, SwppConfigRuntimeEvent,
-            SwppConfigDomConfig, SwppConfigModifier
-        } from 'swpp-backends/dist/swpp/config/ConfigCluster'
+            defineCompilationEnv, defineCompilationFP,
+            defineCrossDep, defineCrossEnv,
+            defineDomConfig, defineModifier,
+            defineRuntimeCore, defineRuntimeDep, defineRuntimeEvent
+        } from 'swpp-backends'
 
-        export const compilationEnv: SwppConfigCompilationEnv = {}
+        export const compilationEnv = defineCompilationEnv({})
 
-        export const crossEnv: SwppConfigCrossEnv = {}
+        export const crossEnv = defineCrossEnv({})
 
-        export const runtimeDep: SwppConfigRuntimeDep = {}
+        export const runtimeDep = defineRuntimeDep({})
 
-        export const crossDep: SwppConfigCrossDep = {}
+        export const crossDep = defineCrossDep({})
 
-        export const runtimeCore: SwppConfigRuntimeCore = {}
+        export const runtimeCore = defineRuntimeCore({})
 
-        export const runtimeEvent: SwppConfigRuntimeEvent = {}
+        export const runtimeEvent = defineRuntimeEvent({})
 
-        export const domConfig: SwppConfigDomConfig = {}
+        export const domConfig = defineDomConfig({})
 
         export const modifier: SwppConfigModifier = {}
         ```
