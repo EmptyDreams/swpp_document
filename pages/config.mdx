@@ -1,4 +1,4 @@
-import {Tabs} from 'nextra/components'
+import { Tabs } from "nextra/components";
 
 # 配置文件的详细说明
 
@@ -73,6 +73,7 @@ import {Tabs} from 'nextra/components'
         export const modifier: SwppConfigModifier = {}
         ```
     </Tabs.Tab>
+
 </Tabs>
 
 &emsp;&emsp;注意：上面的示例中一次性列出了所有的分类，实际使用时，建议只写出需要修改的配置，以保持配置文件的简洁性。
@@ -81,8 +82,8 @@ import {Tabs} from 'nextra/components'
 
 &emsp;&emsp;从上面的示例代码中可以看到，swpp 将内置的配置项分为了八类，其命名规则如下：
 
-+ `compilation` 开头表示该分类下的配置仅在构建时产生影响，不会被写入到 sw 文件中。
-+ `runtime` 开头表示该分类下的配置仅会被写入到 sw 文件中，不会在构建时被使用。
-+ `cross` 开头表示该分类下的配置在构建时有可能被使用，同时会被写入到 sw 文件中。
-+ `dom` 开头表示该分类下的配置会影响 DOM 端 js 的生成。
-+ `modifier` 是一项非常特殊且功能强大的配置，后面将会专门进行讲解。
+- `compilation` 开头表示该分类下的配置仅在构建时产生影响，不会被写入到 sw 文件中。
+- `runtime` 开头表示该分类下的配置仅会被写入到 sw 文件中，不会在构建时被使用。
+- `cross` 开头表示该分类下的配置在构建时有可能被使用，同时会被写入到 sw 文件中。
+- `dom` 开头表示该分类下的配置会影响 DOM 端 js 的生成。
+- `modifier` 是一项非常特殊且功能强大的配置，后面将会专门进行讲解。
