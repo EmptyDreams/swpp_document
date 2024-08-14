@@ -1,0 +1,48 @@
+# 双期函数依赖
+
+&emsp;&emsp;该分类下所有配置项均同时在构建期和运行时生效，其中的内容会被写入到 sw 中。
+
+&emsp;&emsp;设置该值时需要按照如下格式进行：
+
+```typescript
+const example = {
+  runOnBrowser: (args) => {},
+  runOnNode: function(args) {}
+}
+```
+
+&emsp;&emsp;其中 `runOnBrowser` 表示在浏览器端运行的代码，`runOnNode` 表示在 NodeJs 端运行的代码，`runOnNode` 中可以使用 `this` 调用 `runOnBrowser`。
+
+## matchCacheRule
+
+|                         类型                         | 说明                     |    默认值     |
+| :--------------------------------------------------: | :----------------------- | :-----------: |
+| `(url: URL) => number \| false \| null \| undefined` | 判断一个资源是否需要缓存 | `() => false` |
+
+&emsp;&emsp;该项用于判断一个资源是否需要被前端缓存，其中各个返回值的含义如下：
+
+- `false` `null` `undefined` 或 `0`：表示不需要缓存
+- 正数：表示需要缓存，缓存类型为定时缓存，单位为毫秒，超过指定时间后缓存自动失效
+- 负数：表示需要缓存，缓存类型为永久缓存，仅能通过增量更新失效
+
+## normalizeUrl
+
+|           类型            | 说明       | 默认值 |
+| :-----------------------: | :--------- | :----: |
+| `(url: string) => string` | 归一化 URL |  省略  |
+
+&emsp;&emsp;该项用于将链接进行归一化，归一化的作用是防止目标相同但连接形式不同的资源被重复缓存。默认的实现会对 HTML 资源的 URL 进行处理：
+
+- 如果链接以 `/index.html` 结尾会被替换为 `/`
+- 如果链接以 `/xxx.html` 结尾会被替换为 `/xxx`
+- 否则保持原链接
+
+## matchUpdateRule
+
+|                                    类型                                     | 说明             | 默认值 |
+| :-------------------------------------------------------------------------: | :--------------- | :----: |
+| `(exp: UpdateChangeExp) => ((url: string) => boolean \| undefined \| null)` | 匹配缓存更新规则 |  省略  |
+
+&emsp;&emsp;该项用于判断一个 `UpdateChangeExp` 应当如何被程序理解，返回一个函数，该函数用于判断指定资源是否应该被刷新。
+
+&emsp;&emsp;内置的规则已经可以满足大多数情况的要求，一般只有需要自定义新的规则时才需要修改该项，具体的实现可以参考 [源代码](https://github.com/EmptyDreams/swpp-backends/blob/v3/src/swpp/database/CrossDepCode.ts#L64)。
