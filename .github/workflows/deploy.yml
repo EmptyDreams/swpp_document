@@ -31,6 +31,9 @@ jobs:
       - name: Build the application
         run: pnpm run build
 
+      - name: Create CNAME file
+        run: echo "swpp.kmar.top" > ./out/CNAME
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
