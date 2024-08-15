@@ -1,8 +1,28 @@
 # 双期环境变量
 
-&emsp;&emsp;该分类下所有配置项均同时在构建期和运行时生效，其中的内容会被写入到 sw 中。
+&emsp;&emsp;该配置项用于放置需要同时在浏览器环境和 NodeJs 环境中使用的环境变量，其中的内容会被写入到 sw 中。
 
-&emsp;&emsp;设置的所有值均会在构建期完成计算然后插入到 sw 之中，所以允许使用仅构建期可用的值来计算最终的值。请注意，环境变量并不应该用来插入 `function` 类型的数据。
+&emsp;&emsp;对于每一项配置 `<KEY>: <value | function(): value>`：`<KEY>` 是函数名（推荐使用大写下划线式命名），`value` 是环境变量的值。
+
+&emsp;&emsp;环境变量中应对仅包含非函数内容，当填写的配置项为函数时，swpp 会将函数返回的内容插入到环境变量中。
+
+&emsp;&emsp;配置项填写的函数的执行环境为 NodeJs，所以不要编写依赖浏览器环境的代码。
+
+&emsp;&emsp;例：
+
+```typescript
+// 该代码将在 sw.js 中插入一系列常量，同时在编译期也可以动态读取
+// const EXAMPLE = 'hello swpp'
+// const FUN_EXAMPLE = 'fun hello swpp'
+
+// noinspection TypeScriptUnresolvedReference
+export const crossEnv = defineCrossEnv({
+  EXAMPLE: 'hello swpp',
+  FUN_EXAMPLE: function() {
+    return 'fun ' + this.crossEnv.read('EXAMPLE')
+  }
+})
+```
 
 ## CACHE_NAME
 
