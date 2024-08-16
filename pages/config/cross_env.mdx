@@ -17,10 +17,10 @@
 
 // noinspection TypeScriptUnresolvedReference
 export const crossEnv = defineCrossEnv({
-  EXAMPLE: 'hello swpp',
-  FUN_EXAMPLE: function() {
-    return 'fun ' + this.crossEnv.read('EXAMPLE')
-  }
+    EXAMPLE: 'hello swpp',
+    FUN_EXAMPLE: function() {
+        return 'fun ' + this.crossEnv.read('EXAMPLE')
+    }
 })
 ```
 
