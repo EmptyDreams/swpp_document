@@ -4,9 +4,7 @@
 
 &emsp;&emsp;该配置项用于放置仅需要在 NodeJs 环境中使用的环境变量。
 
-&emsp;&emsp;对于每一项配置 `<KEY>: <value | function(): value>`：`<KEY>` 是函数名（推荐使用大写下划线式命名），`<value>` 是环境变量的值。
-
-&emsp;&emsp;环境变量中应对仅包含非函数内容，当填写的配置项为函数时，swpp 会将函数返回的内容插入到环境变量中。
+&emsp;&emsp;对于每一项配置 `<KEY>: <value | function(): value>`：`<KEY>` 是属性名（推荐函数使用小写驼峰，常量使用大写下划线式命名），`<value>` 是环境变量的值。
 
 &emsp;&emsp;该环境变量中的代码在 NodeJs 环境下执行，执行结果不会被放入 sw.js 中。
 
@@ -25,16 +23,6 @@
 | `string` | sw 文件名 | `sw` |
 
 &emsp;&emsp;该项用于告知 swpp 您的 sw 生成的路径及名称，编写时不需要携带拓展名，默认生成到 `/sw.js`。
-
-## isStable
-
-|           类型            | 说明           |      默认值      |
-|:-----------------------:|:-------------|:-------------:|
-| `(url: URL) => boolean` | 检查一个链接是否是稳定的 | `() => false` |
-
-&emsp;&emsp;该配置项用于检查一个链接是否是稳定的，也就是 URL 不变其返回的结果永远不变。
-
-&emsp;&emsp;合理地设置该项可以加快 swpp 构建的速度，减少网络请求的数量。
 
 ## JSON_HTML_LIMIT
 
@@ -68,40 +56,34 @@
 // noinspection TypeScriptUnresolvedReference
 
 interface Type {
-  /** 生成的数据文件的目录，默认值：`swpp` */
-  swppPath: string;
-  /** 后台 tracker 信息的文件名，默认值：`tracker.json` */
-  trackerPath: string;
-  /** 版本文件的文件名，默认值：`update.json` */
-  versionPath: string;
-  /**
-   * 拉取 tracker 文件，默认操作是从网络中拉取文件并解析。
-   *
-   * 拉取的地址为：`https://{DOMAIN_HOST}/{swppPath}/{trackerPath}`
-   */
-  fetchTrackerFile: (
-    compilation: CompilationData,
-  ) => Promise<FileUpdateTracker>;
-  /**
-   * 拉取版本文件，默认操作是从网络中拉取文件并解析。
-   *
-   * 拉取的地址为：`https://{DOMAIN_HOST}/{swppPath}/{versionPath}`
-   */
-  fetchVersionFile: () => Promise<UpdateJson>;
+
+    /** 生成的数据文件的目录，默认值：`swpp` */
+    swppPath: string
+    /** 后台 tracker 信息的文件名，默认值：`tracker.json` */
+    trackerPath: string
+    /** 版本文件的文件名，默认值：`update.json` */
+    versionPath: string
+
+    /**
+     * 拉取 tracker 文件，默认操作是从网络中拉取文件并解析。
+     *
+     * 拉取的地址为：`https://{DOMAIN_HOST}/{swppPath}/{trackerPath}`
+     */
+    fetchTrackerFile: (
+      compilation: CompilationData,
+    ) => Promise<FileUpdateTracker>
+
+    /**
+     * 拉取版本文件，默认操作是从网络中拉取文件并解析。
+     *
+     * 拉取的地址为：`https://{DOMAIN_HOST}/{swppPath}/{versionPath}`
+     */
+    fetchVersionFile: () => Promise<UpdateJson>
+
 }
 ```
 
 &emsp;&emsp;修改该项配置时，可以仅修改部分字段，比如传入：`{ swppPath: 'example/hello' }` 可以仅修改 `swppPath` 的值，而其它的值保持默认。
-
-## readLocalFile
-
-|                       类型                       | 说明        | 默认值 |
-|:----------------------------------------------:|:----------|:---:|
-| `(path: string) => Promise<crypto.BinaryLike>` | 从本地读取一个文件 | 省略  |
-
-&emsp;&emsp;该配置项用于从本地读取一个文件，其接受一个参数 `path`，可能为绝对路径也可能为相对路径，默认实现使用 `fs` 以 UTF-8 编码读取文件。
-
-&emsp;&emsp;对于 HTML、CSS、JS 类型的文件，必须返回 `string`，其它类型的文件只需要满足 `crypto.BinaryLike` 即可。
 
 ## NETWORK_FILE_FETCHER
 
@@ -113,20 +95,22 @@ interface Type {
 
 ```typescript
 interface NetworkFileHandler {
-  /** 最大并发量，当并发量超过此限制时，后到达的请求应当等待队列中的请求完成。默认为：100 */
-  limit: number;
-  /** 拉取文件时使用的 referer，默认为：https://swpp.example.com */
-  referer: string;
-  /** 拉取文件时使用的 ua，默认为：swpp-backends */
-  userAgent: string;
-  /** 需要额外写入的 header */
-  headers: { [name: string]: string };
 
-  /** 拉取文件 */
-  fetch(request: RequestInfo | URL): Promise<Response>;
+    /** 最大并发量，当并发量超过此限制时，后到达的请求应当等待队列中的请求完成。默认为：100 */
+    limit: number
+    /** 拉取文件时使用的 referer，默认为：https://swpp.example.com */
+    referer: string
+    /** 拉取文件时使用的 ua，默认为：swpp-backends */
+    userAgent: string
+    /** 需要额外写入的 header */
+    headers: { [name: string]: string }
 
-  /** 获取指定文件的类型 */
-  getUrlContentType(url: string, response?: Response): string;
+    /** 拉取文件 */
+    fetch(request: RequestInfo | URL): Promise<Response>
+
+    /** 获取指定文件的类型 */
+    getUrlContentType(url: string, response?: Response): string
+
 }
 ```
 
@@ -134,36 +118,10 @@ interface NetworkFileHandler {
 
 &emsp;&emsp;默认实现使用 NodeJS 内置的 `fetch` 函数拉取文件，对于使用低版本 NodeJS 的用户，则需要自行覆盖 `fetch` 的实现。
 
-## isNotFound
-
-|   类型   | 说明                        | 默认值 |
-| :------: | :-------------------------- | :----: |
-| `object` | 判断一个请求是否是 404 错误 |  省略  |
-
-&emsp;&emsp;该配置项用于判断一个请求的结果是否是 404 错误，默认实现如下：
-
-```typescript
-export default {
-  /**
-   * 通过 response 判断是否是 404，在这里返回 true 均会被认定为状态码 404
-   *
-   * 注意不能直接读取传入的 response 的 body，如果需要修改先 clone 一下
-   *
-   * @return 返回 `true` 表示判定为 404
-   */
-  response: (response: Response) => response.status == 404,
-  /**
-   * 当拉取文件报错时通过该函数判断是否是 404
-   * @return 返回 `true` 表示判定为 404
-   */
-  error: (err: any) => err?.cause?.code === 'ENOTFOUND',
-};
-```
-
 ## ALLOW_NOT_FOUND
 
-|        类型         | 说明     |     默认值     |
-| :-----------------: | :------- | :------------: |
+|         类型          | 说明     |      默认值       |
+|:-------------------:|:-------|:--------------:|
 | `AllowNotFoundEnum` | 404 等级 | `ALLOW_STATUS` |
 
 &emsp;&emsp;该配置项用于设置拉取数据文件时能够接受的 404 级别。共分为三个级别：
@@ -173,3 +131,52 @@ export default {
 - `REJECT_ALL`: 不允许任何形式的 404 错误
 
 &emsp;&emsp;当遇到不允许的 404 错误时 swpp 将直接结束构建，设置合理的报错等级可以防止网站被错误地部署到线上，从而导致历史版本丢失。
+
+## isStable
+
+|           类型            | 说明           |      默认值      |
+|:-----------------------:|:-------------|:-------------:|
+| `(url: URL) => boolean` | 检查一个链接是否是稳定的 | `() => false` |
+
+&emsp;&emsp;该配置项用于检查一个链接是否是稳定的，也就是 URL 不变其返回的结果永远不变。
+
+&emsp;&emsp;合理地设置该项可以加快 swpp 构建的速度，减少网络请求的数量。
+
+## readLocalFile
+
+|                       类型                       | 说明        | 默认值 |
+|:----------------------------------------------:|:----------|:---:|
+| `(path: string) => Promise<crypto.BinaryLike>` | 从本地读取一个文件 | 省略  |
+
+&emsp;&emsp;该配置项用于从本地读取一个文件，其接受一个参数 `path`，可能为绝对路径也可能为相对路径，默认实现使用 `fs` 以 UTF-8 编码读取文件。
+
+&emsp;&emsp;对于 HTML、CSS、JS 类型的文件，必须返回 `string`，其它类型的文件只需要满足 `crypto.BinaryLike` 即可。
+
+## isNotFound
+
+|    类型    | 说明               | 默认值 |
+|:--------:|:-----------------|:---:|
+| `object` | 判断一个请求是否是 404 错误 | 省略  |
+
+&emsp;&emsp;该配置项用于判断一个请求的结果是否是 404 错误，默认实现如下：
+
+```typescript
+export default {
+
+    /**
+     * 通过 response 判断是否是 404，在这里返回 true 均会被认定为状态码 404
+     *
+     * 注意不能直接读取传入的 response 的 body，如果需要修改先 clone 一下
+     *
+     * @return 返回 `true` 表示判定为 404
+     */
+
+    response: (response: Response) => response.status == 404,
+    /**
+     * 当拉取文件报错时通过该函数判断是否是 404
+     * @return 返回 `true` 表示判定为 404
+     */
+    error: (err: any) => err?.cause?.code === 'ENOTFOUND'
+
+};
+```
