@@ -1,0 +1,144 @@
+# DOM JS 相关配置
+
+&emsp;&emsp;运行时使用的常量、函数。
+
+&emsp;&emsp;该配置项用于放置需要生成到 dom. js 中的内容。
+
+&emsp;&emsp;对于每一项配置 `<KEY>: <value>`：`<KEY>` 是常量名或函数名，常量推荐大写下划线命名，函数推荐小写驼峰命名，`<value>` 是值。
+
+&emsp;&emsp;该配置项中的值只能使用本配置项中包含的内容，不能使用其它编译期、运行期的内容。
+
+&emsp;&emsp;该配置项中所有以 `_inline` 开头的内容必须为 `() => void` 类型的函数，其将会以 `(function content)()` 的形式在插入的位置执行。
+
+## registry
+
+|       类型       | 说明      | 默认值 |
+|:--------------:|:--------|:---:|
+| `() => string` | SW 注册代码 | 忽略  |
+
+&emsp;&emsp;该项用于修改插入到 HTML 中的注册 SW 的代码。swpp 会在部分或所有（具体取决于前端的实现）HTML 的 `<head>` 中插入注册 SW 的代码。
+
+&emsp;&emsp;默认的实现是：
+
+```typescript
+import {defineDomConfig} from 'swpp-backends'
+
+export const domConfig = defineDomConfig({
+    registry: () => {
+        const value = (() => {
+            const sw = navigator.serviceWorker
+            if (sw) {
+                sw.register('$$sw.js')
+                    .then(async registration => {
+                        console.log('SWPP 注册成功')
+                        try {
+                            // @ts-ignore
+                            await registration.periodicSync.register("update", {
+                                minInterval: 24 * 60 * 60 * 1000
+                            })
+                        } catch (e) {
+                            console.warn('Periodic Sync 注册失败', e)
+                        }
+                    })
+                    .catch(err => console.error('SWPP 注册失败', err))
+            } else {
+                console.warn('当前浏览器不支持 SW')
+            }
+        }).toString()
+        // noinspection TypeScriptUnresolvedReference
+        const path = compilation.compilationEnv.read('SERVICE_WORKER')
+        return value.replace(`'$$sw.js'`, path + '.js')
+    }
+})
+```
+
+&emsp;&emsp;其最终会在 HTML 中插入如下代码（具体形式依赖前端实现，下面只是一个样例）：
+
+```html
+<script>
+    (() => {
+        const sw = navigator.serviceWorker
+        if (sw) {
+            sw.register('sw.js')
+                .then(async registration => {
+                    console.log('SWPP 注册成功')
+                    try {
+                        // @ts-ignore
+                        await registration.periodicSync.register("update", {
+                            minInterval: 24 * 60 * 60 * 1000
+                        })
+                    } catch (e) {
+                        console.warn('Periodic Sync 注册失败', e)
+                    }
+                })
+                .catch(err => console.error('SWPP 注册失败', err))
+        } else {
+            console.warn('当前浏览器不支持 SW')
+        }
+    })()
+</script>
+```
+
+&emsp;&emsp;您可以参考这个提供自己的实现，以实现定制化的注册通知、失败通知等。示例代码中使用的 `periodicSync` 用于实现后台自动更新，浏览器对该事件的注册有限制，必须客户端通过 PWA 安装网站应用后才能生效，如果注册报错了也是正常现象，无需担心影响其它功能。
+
+&emsp;&emsp参考文档：
+
++ [register | MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/ServiceWorkerContainer/register)
++ [Periodic Sync | MDN](https://developer.mozilla.org/en-US/docs/Web/API/PeriodicSyncManager)
+
+## postMessage2Sw
+
+|            类型            | 说明        | 默认值 |
+|:------------------------:|:----------|:---:|
+| `(type: string) => void` | 向 SW 发送信息 | 忽略  |
+
+&emsp;&emsp;该函数用于从 DOM 端向 SW 端发送消息，默认实现如下：
+
+```javascript
+// noinspection JSUnusedLocalSymbols
+const postMessage2Sw = (type) => navigator.serviceWorker.controller.postMessage(type)
+```
+
+&emsp;&emsp;该实现通常不需要修改，如果您希望实现更多的功能，可以修改函数的参数类型，只需要保证传入一个字符串时能够正常运行即可。（当然如果你把调用这个函数的地方都改了那么就什么限制都没有了。）
+
+## pjaxUpdate
+
+|           类型            | 说明      | 默认值 |
+|:-----------------------:|:--------|:---:|
+| `(url: string) => void` | 更新 pjax | 忽略  |
+
+&emsp;&emsp;对于安装了 [pjax](https://kmar.top/posts/dbf5bf98/) 的用户来说，如果刷新缓存后直接使用代码刷新页面，那么 js 和 css 的更新将无法应用，所以对于启用 `pjax` 的用户需要使用该函数将页面中的 js 和 css 进行更新。
+
+&emsp;&emsp;默认实现更新的原理是将需要更新的资源文件对应的引入标签从 DOM 中移除并重新放入；函数传入的 `url` 参数是本次更新的资源的 URL。
+
+## SESSION_KEY
+
+|    类型    | 说明               |     默认值     |
+|:--------:|:-----------------|:-----------:|
+| `string` | 存储 session 的 key | `'updated'` |
+
+&emsp;&emsp;swpp 通过向 session 中存储一个临时数据来判断刚刚是否更新过缓存，此处用于修改这个 key。
+
+## onSuccess
+
+|      类型      | 说明           |    默认值    |
+|:------------:|:-------------|:---------:|
+| `() => void` | 缓存更新成功时触发的操作 | 控制台打印提示信息 |
+
+&emsp;&emsp;该配置项传入的函数将会在缓存更新成功后触发。
+
+## _inlineA
+
+|      类型      | 说明                | 默认值 |
+|:------------:|:------------------|:---:|
+| `() => void` | 触发更新和 `onSuccess` | 省略  |
+
+&emsp;&emsp;该配置项传入的代码块用于触发缓存的更新和 `onSuccess`。
+
+## messageEvent
+
+|               类型                | 说明            | 默认值 |
+|:-------------------------------:|:--------------|:---:|
+| `(event: MessageEvent) => void` | 接受 SW 发送过来的消息 | 省略  |
+
+&emsp;&emsp;当 SW 发送消息到 DOM 端时会触发该事件，具体参考：[MessageEvent | MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/MessageEvent)。
