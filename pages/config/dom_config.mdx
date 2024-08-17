@@ -81,7 +81,7 @@ export const domConfig = defineDomConfig({
 
 &emsp;&emsp;您可以参考这个提供自己的实现，以实现定制化的注册通知、失败通知等。示例代码中使用的 `periodicSync` 用于实现后台自动更新，浏览器对该事件的注册有限制，必须客户端通过 PWA 安装网站应用后才能生效，如果注册报错了也是正常现象，无需担心影响其它功能。
 
-&emsp;&emsp参考文档：
+&emsp;&emsp;参考文档：
 
 + [register | MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/ServiceWorkerContainer/register)
 + [Periodic Sync | MDN](https://developer.mozilla.org/en-US/docs/Web/API/PeriodicSyncManager)
@@ -99,7 +99,7 @@ export const domConfig = defineDomConfig({
 const postMessage2Sw = (type) => navigator.serviceWorker.controller.postMessage(type)
 ```
 
-&emsp;&emsp;该实现通常不需要修改，如果您希望实现更多的功能，可以修改函数的参数类型，只需要保证传入一个字符串时能够正常运行即可。（当然如果你把调用这个函数的地方都改了那么就什么限制都没有了。）
+&emsp;&emsp;该实现通常不需要修改，如果您希望实现更多的功能，可以修改函数的参数类型，只需要保证传入一个字符串时能够正常运行即可。（当然如果把调用这个函数的地方都改了那么就什么限制都没有了。）
 
 ## pjaxUpdate
 
