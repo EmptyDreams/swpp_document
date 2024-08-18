@@ -1,7 +1,7 @@
 {
-  "compilation_env": "CompilationEnv",
-  "cross_env": "CrossEnv",
   "runtime_dep": "RuntimeDep",
+  "cross_env": "CrossEnv",
+  "compilation_env": "CompilationEnv",
   "cross_dep": "CrossDep",
   "runtime_core": "RuntimeCore",
   "runtime_event": "RuntimeEvent",
