@@ -1,0 +1,132 @@
+# 运行时事件
+
+&emsp;&emsp;运行时事件注册。
+
+&emsp;&emsp;该配置项用于在 sw 中注册指定的事件，可以和 SwppConfigRuntimeDep 一样引用运行时的内容。
+
+&emsp;&emsp;对于每一项配置 `<KEY>: <function>`：`<KEY>` 是事件名，`<function>` 是事件执行体。
+
+例：
+
+```typescript
+// noinspection TypeScriptUnresolvedReference
+
+import {defineRuntimeEvent} from 'swpp-backends'
+
+// 该代码将在 sw. js 中插入事件注册代码
+// self.addEventListener('fetch', event => {
+//     // do something
+// })
+// 注意：编写 TS 时可能会遇到 FetchEvent 类型找不到的问题，
+// 这个问题暂时没有特别好的解决方案，把类型改成 any 或者 Event 然后用 @ts-ignore 忽略错误即可。
+
+// noinspection JSUnusedLocalSymbols
+export const runtimeEvent = defineRuntimeEvent({
+    fetch: (event: FetchEvent) => {
+        // do something
+    }
+})
+```
+
+## install
+
+|               类型                | 说明   |
+|:-------------------------------:|:-----|
+| `(event: InstallEvent) => void` | 安装事件 |
+
+&emsp;&emsp;事件的解释见：[install event | MDN](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/install_event)。
+
+&emsp;&emsp;默认实现如下：
+
+```typescript
+(_event: Event) => {
+    // @ts-ignore
+    skipWaiting()
+}
+```
+
+## activate
+
+|                 类型                 | 说明   |
+|:----------------------------------:|:-----|
+| `(event: ExtendableEvent) => void` | 激活事件 |
+
+&emsp;&emsp;事件的解释参见：[activate event | MDN](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/activate_event)。
+
+&emsp;&emsp;默认实现如下：
+
+```typescript
+// noinspection TypeScriptUnresolvedReference,JSUnusedLocalSymbols,JSDeprecatedSymbols
+(event: ExtendableEvent) => event.waitUntil(clients.claim())
+```
+
+## fetch
+
+|              类型               | 说明     |
+|:-----------------------------:|:-------|
+| `(event: FetchEvent) => void` | 网络请求事件 |
+
+&emsp;&emsp;事件的解释见：[fetch event | MDN](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/fetch_event)。
+
+&emsp;&emsp;默认实现如下：
+
+```typescript
+// noinspection TypeScriptUnresolvedReference,JSDeprecatedSymbols,JSUnusedLocalSymbols
+(event: FetchEvent) => handleFetchEvent(event)
+```
+
+## periodicSync
+
+|                  类型                  | 说明   |
+|:------------------------------------:|:-----|
+| `(event: PeriodicSyncEvent) => void` | 同步事件 |
+
+&emsp;&emsp;事件的解释见：[periodicSync event | MDN](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/periodicsync_event)。
+
+&emsp;&emsp;默认实现如下：
+
+```typescript
+// noinspection TypeScriptUnresolvedReference,JSDeprecatedSymbols,JSUnusedLocalSymbols
+
+(event: PeriodicSyncEvent) => {
+    if (event.tag === 'update') {
+        event.waitUntil(handleUpdate(true))
+    }
+}
+```
+
+## message
+
+|                    类型                     | 说明   |
+|:-----------------------------------------:|:-----|
+| `(event: ExtendableMessageEvent) => void` | 消息事件 |
+
+&emsp;&emsp;事件的解释见：[message event | MDN](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/message_event)。
+
+&emsp;&emsp;默认实现如下：
+
+```typescript
+// noinspection TypeScriptUnresolvedReference,JSDeprecatedSymbols,JSUnusedLocalSymbols
+
+async (event: ExtendableMessageEvent) => {
+    const data = event.data
+    switch (data.type) {
+        case 'update':
+            const oldVersion = await readVersion()
+            const updateResult = await handleUpdate(oldVersion)
+            if (!updateResult) return
+            switch (updateResult) {
+                case -1:
+                    return postMessage('new', null)
+                case 1:
+                    return postMessage('revise', null)
+                case 2:
+                    return postMessage('update', null)
+                default:
+                    if (Array.isArray(updateResult)) {
+                        return postMessage('update', updateResult)
+                    }
+            }
+    }
+}
+```
