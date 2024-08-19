@@ -39,8 +39,9 @@ export const runtimeEvent = defineRuntimeEvent({
 &emsp;&emsp;默认实现如下：
 
 ```typescript
-(_event: Event) => {
-    // @ts-ignore
+// noinspection TypeScriptUnresolvedReference
+
+(_event: InstallEvent) => {
     skipWaiting()
 }
 ```
