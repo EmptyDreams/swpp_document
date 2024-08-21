@@ -1,0 +1,19 @@
+# 编译时文件解析器
+
+&emsp;&emsp;构建期使用的文件处理器。
+
+&emsp;&emsp;该配置项用于放置需要在 NodeJs 环境中使用的文件处理器。
+
+&emsp;&emsp;对于每一项配置 `<KEY>: <FileParser>`: `<KEY>` 是文件拓展名（不包括 `.`），`<FileParser>` 是处理机。
+
+&emsp;&emsp;解析器的作用是从文件中提取外部资源的 URL，以辅助 swpp 追踪资源链。
+
+&emsp;&emsp;默认实现请参考 `CompilationFileParser.ts` 源码。
+
+## html
+
+&emsp;&emsp;swpp 使用第三方库解析 HTML 文件，并从中记录 `script` `link` 标签引入的资源的 URL，遇到 `style` 标签时还会调用 `css` 处理机处理 CSS 内容，同理遇到内嵌的 JS 代码时也会尝试使用 `js` 处理机处理 JS 内容。
+
+## css
+
+&emsp;&emsp;swpp 使用内置的文本处理器解析 CSS 文件中以 `url(xxx)` 格式引入的资源的 URL，解析时忽略注释中的内容。
