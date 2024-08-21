@@ -22,7 +22,7 @@ defineConfig({
 
 ## 不可分割配置
 
-&emsp;&emsp;继承关系：`IndivisibleConfig` <- `SpecialConfig`
+&emsp;&emsp;继承关系：`IndivisibleConfig` \<- `SpecialConfig`
 
 &emsp;&emsp;默认情况下，swpp 会对产生冲突的配置项按照优先级进行合并，当定义一个对象配置时，将允许从其它配置文件中合并一部分配置到对象中，比如：
 
@@ -82,7 +82,7 @@ defineXxx({
 
 ## 不可缓存配置
 
-&emsp;&emsp;继承关系：`NoCacheConfig` <- `RuntimeSpecialConfig` <- `SpecialConfig`
+&emsp;&emsp;继承关系：`NoCacheConfig` \<- `RuntimeSpecialConfig` \<- `SpecialConfig`
 
 &emsp;&emsp;默认情况下，swpp 会缓存配置项的结果，下一次读取同一个配置项时便不需要经过类型检查等操作。有些时候您可能希望每一次读取值时都动态读取，那么可以使用此方法禁用缓存。
 
@@ -105,7 +105,7 @@ defineXxx({
 
 ## 延迟初始化配置
 
-&emsp;&emsp;继承关系：`LazyInitConfig` <- `RuntimeSpecialConfig` <- `SpecialConfig`
+&emsp;&emsp;继承关系：`LazyInitConfig` \<- `RuntimeSpecialConfig` \<- `SpecialConfig`
 
 &emsp;&emsp;默认情况下，swpp 会在加载配置文件时对各项配置的值进行计算，此时就出现了一个问题，您无法在设置配置时访问其它配置内容。
 
