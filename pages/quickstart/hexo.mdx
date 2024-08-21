@@ -1,0 +1,76 @@
+# 在 Hexo 中使用 swpp
+
+&emsp;&emsp;在本章中，您将了解如何在 hexo 中使用 swpp。
+
+## 安装
+
+&emsp;&emsp;首先，运行下面的指令安装插件：
+
+```bash
+npm install swpp-backends@3 hexo-swpp@4
+```
+
+&emsp;&emsp;当 swpp-backends 存在版本更新时，可以直接更新 swpp-backends 版本，不需要更新 hexo-swpp 的版本。（不过 hexo-swpp 有更新的话最好也跟进一下。）
+
+## 配置 hexo-swpp
+
+&emsp;&emsp;接下来，您需要在 hexo 配置或主题配置文件中写入下面的内容：
+
+```yaml
+swpp:
+  # 是否启用，默认 false
+  enable: true
+  # 配置文件路径，以 `/` 结尾表示加载指定文件夹下的所有文件，注意文件夹中只能有配置文件，不能有其它文件及文件夹
+  # config_path: 'swpp.config.ts'
+  # 是否生成 sw
+  # serviceWorker: true
+  # 是否向所有 HTML 插入注册 sw 的代码
+  # auto_register: true
+  # 是否生成 DOM 端的 JS 文件并在 HTML 中插入 script
+  # gen_dom: true
+  # 是否在执行 hexo deploy 时自动执行 swpp 指令
+  # auto_exec: false
+  # 检查更新的网址，默认 "https://registry.npmjs.org"，注意不能以斜杠结尾
+  # npm_url: 'https://registry.npmmirror.com'
+  #
+  # 排序规则。
+  # 该配置项是为了对 hexo 中的一些变量进行排序，避免每次生成 HTML 时由于这些变量的顺序变动导致生成结果不完全相同。
+  # 示例：
+  # ```yaml
+  # # 下面给出的值为插件的缺省值，用户设置该项不会直接覆盖这些值，只有用户也声明 posts、pages 或 tags 时才会覆盖对应的值。
+  # swpp:
+  #   sort_rules:
+  #     posts: 'title'
+  #     pages: 'title'
+  #     tags: 'name'
+  # ```
+  # 其中 key 值为要排序的变量的名称，value 为变量排序时的依据，
+  # 填 false 表示禁用该项排序，填 true 表示以 value 本身为键进行排序，填字符串表示以 value[tag] 为键进行排序。
+  # sort_rules:
+```
+
+&emsp;&emsp;插件会在生成网站时自动生成 Service Worker、注册代码、DOM 端支持代码，版本更新文件需要通过 hexo swpp 命令手动生成。
+
+&emsp;&emsp;`auto_exec` 配置项允许用户在执行 `hexo deploy` 指令时自动执行 `hexo swpp` 的内容（注意开启该配置项后无法再使用 `hexo swpp` 命令）。
+
+⚠ 注意：
+
++ 尽可能在压缩网站内容前执行 `hexo swpp`，因为部分压缩插件可能会出现同样的内容连续压缩结果不一样的问题，这会导致插件错误地更新缓存。
++ 如果你的网站发布过程不使用 `hexo deploy` 指令，则不要启用 `auto_exec` 选项。
++ 将 `npm_url` 调整为非官方 URL 后检查版本时可能会出现 404 错误。
+
+### 指令
+
+1. `hexo swpp` - 构建 json 文件
+2. `hexo swpp -b` / `hexo swpp --build` - 构建 json 文件，同 `hexo swpp`
+3. `hexo swpp -t [URL]` / `hexo swpp --test [URL]` - 尝试拉取指定 URL，使用时将 `[URL]` 替换为有效的 HTTP/HTTPS 链接（需要附带协议头）
+
+## 创建 swpp 配置文件
+
+&emsp;&emsp;在项目根目录下创建 `swpp.config.ts` 文件（您可以通过 `yaml` 配置修改配置文件所在的路径）。
+
+&emsp;&emsp;`hexo-swpp` 会根据 hexo 配置自动为您填写配置文件中的 `DOMAIN_HOST` 字段，所以您无需手动填写该字段。
+
+---
+
+&emsp;&emsp;到这里您就完成了 swpp 安装的所有流程，但是此时您尚未启用 swpp 的任何功能，所以并不能给您的网站带来任何改善，继续阅读文档以了解 swpp 的配置项。
