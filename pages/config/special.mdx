@@ -4,7 +4,7 @@
 
 &emsp;&emsp;这些工具函数构建的配置项有两大分类：`SpecialConfig` 和 `RuntimeSpecialConfig`，其中 `RuntimeSpecialConfig` 从前者派生。
 
-&emsp;&emsp;从名字很容易可以看出来，`RuntimeSpecialConfig` 的声明周期要更长一些，实际上也正是如此，`SpecialConfig` 的生命周期为构建配置到配置完成导入，而 `RuntimeSpecialConfig` 的声明周期会从构建配置持续到 swpp 结束运行。
+&emsp;&emsp;从名字很容易可以看出来，`RuntimeSpecialConfig` 的生命周期要更长一些，实际上也正是如此，`SpecialConfig` 的生命周期为构建配置到配置完成导入，而 `RuntimeSpecialConfig` 的生命周期会从构建配置持续到 swpp 结束运行。
 
 &emsp;&emsp;这一系列函数的用法非常简单：
 
