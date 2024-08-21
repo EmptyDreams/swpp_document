@@ -95,14 +95,3 @@ defineModifier({
     }
 })
 ```
-
-## 运行顺序
-
-&emsp;&emsp;swpp 会按照如下顺序装配配置：
-
-1. 按优先级将配置文件加载到内存（优先级越高越先加载）
-2. 调用 `build` 函数构建各个 KV 库（没有 `build` 则将使用默认实现）
-3. 调用 `registry` 函数（优先级越低越先执行）
-4. 依次将 `runtime` `compilation` 和 `cross` 的配置写入到 KV 库当中
-5. 调用 `dynamicUpdate` 函数
-6. 冻结所有 KV 库

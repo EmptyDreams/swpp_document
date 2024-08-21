@@ -7,5 +7,6 @@
   "runtime_event": "RuntimeEvent",
   "dom_config": "DomConfig",
   "modifier": "Modifier",
-  "compilation_file_parser": "CompilationFileParser"
+  "compilation_file_parser": "CompilationFileParser",
+  "special": "配置工具"
 }

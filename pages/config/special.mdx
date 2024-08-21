@@ -1,0 +1,128 @@
+# 配置工具介绍与应用
+
+&emsp;&emsp;细心的朋友会发现除了前文提到的一系列 `defineXxx` 函数外，还有一些 `define` 打头的函数没有提到，这些函数是一些方便用户进行个性化配置的一些工具函数。
+
+&emsp;&emsp;这些工具函数构建的配置项有两大分类：`SpecialConfig` 和 `RuntimeSpecialConfig`，其中 `RuntimeSpecialConfig` 从前者派生。
+
+&emsp;&emsp;从名字很容易可以看出来，`RuntimeSpecialConfig` 的声明周期要更长一些，实际上也正是如此，`SpecialConfig` 的生命周期为构建配置到配置完成导入，而 `RuntimeSpecialConfig` 的声明周期会从构建配置持续到 swpp 结束运行。
+
+&emsp;&emsp;这一系列函数的用法非常简单：
+
+```typescript
+import {defineConfig, defineXxx} from 'swpp-backends'
+
+// noinspection TypeScriptUnresolvedReference
+defineConfig({
+    runtimeDep: {
+      // 注意这些工具函数可以也只能在配置项名称后方使用，且不可嵌套使用
+      example: defineXxx(...args)
+    }
+})
+```
+
+## 不可分割配置
+
+&emsp;&emsp;继承关系：`IndivisibleConfig` <- `SpecialConfig`
+
+&emsp;&emsp;默认情况下，swpp 会对产生冲突的配置项按照优先级进行合并，当定义一个对象配置时，将允许从其它配置文件中合并一部分配置到对象中，比如：
+
+```typescript
+import {defineXxx} from 'swpp-backends'
+
+// 当前配置
+defineXxx({
+    value: {
+        example1: 'hello world'
+    }
+})
+// 如果还有一个配置文件中也声明了这个配置
+defineXxx({
+    value: {
+        example2: 'hello swpp'
+    }
+})
+// 最终将合并生成如下配置
+// value: {
+//     example1: 'hello world',
+//     example2: 'hello swpp'
+// }
+```
+&emsp;&emsp;该函数用于定义一个无法分割的对象配置，这对一些强依赖对象内部属性的设置很有用，可以避免对象被错误地拼接。
+
+&emsp;&emsp;通过该函数，可以禁止 swpp 合并配置时仅选取对象的部分字段，要么全部使用 `[value]` 的值，要么完全不使用 `[value]` 的值。
+
+&emsp;&emsp;放入到上述例子中，假如两个对象中任意一个或多个通过 `defineIndivisibleConfig({ xxx: xxx })` 设置，最终的值将取决于两个配置文件的优先级， 若 `example1` 的优先级高将产生：
+
+```typescript
+import {defineXxx, defineIndivisibleConfig} from 'swpp-backends'
+
+// 当前配置
+defineXxx({
+    value: defineIndivisibleConfig({
+        example1: 'hello world'
+    })
+})
+// 如果还有一个配置文件中也声明了这个配置
+defineXxx({
+    value: {
+        example2: 'hello swpp'
+    }
+})
+// 最终将合并生成如下配置
+// value: {
+//     example1: 'hello world'
+// }
+```
+
+&emsp;&emsp;注意事项：
+
+1. 仅有在两个对象中存在使用 `defineIndivisibleConfig` 定义的配置时才会禁用配置合并，假设现在有 `A` > `B` > `C` 三个配置项都产生了冲突，其中 `A` 优先级最高，但是只有 `C` 使用了 `defineIndivisibleConfig`，那么 `A` 将与 `B` 完成合并后再与 `C` 进行尝试合并，由于 `C` 不能分割且优先级低，所以最终将产生 `A` 与 `B` 合并后的结果。
+2. 如果次级配置文件中使用 `defineIndivisibleConfig` 定义了某项配置，如果您需要覆盖这个配置，注意您无法使用这个配置中的内容，需要手动重写整个配置项。
+3. 除 `IndivisibleConfig` 外，所有的 `RuntimeSpecialConfig` 都会携带与 `IndivisibleConfig` 相同的副作用。
+
+## 不可缓存配置
+
+&emsp;&emsp;继承关系：`NoCacheConfig` <- `RuntimeSpecialConfig` <- `SpecialConfig`
+
+&emsp;&emsp;默认情况下，swpp 会缓存配置项的结果，下一次读取同一个配置项时便不需要经过类型检查等操作。有些时候您可能希望每一次读取值时都动态读取，那么可以使用此方法禁用缓存。
+
+&emsp;&emsp;注意：该选项禁用缓存后对于性能有些许影响，计算结果和校验的成本越高影响越大，一般情况下无显著影响。
+
+&emsp;&emsp;对于下方这个例子，第一种写法每次读取该项配置时，结果都将相同，如果第一次为 `123456` 那么以后永远都将是 `123456`；而对于第二种写法，则每次调用时都能动态地获取当前系统时间。
+
+```typescript
+import {defineXxx, defineNoCacheConfig} from 'swpp-backends'
+
+// config 1
+defineXxx({
+    example: Date.now()
+})
+// config 2
+defineXxx({
+    example: defineNoCacheConfig(() => Date.now())
+})
+```
+
+## 延迟初始化配置
+
+&emsp;&emsp;继承关系：`LazyInitConfig` <- `RuntimeSpecialConfig` <- `SpecialConfig`
+
+&emsp;&emsp;默认情况下，swpp 会在加载配置文件时对各项配置的值进行计算，此时就出现了一个问题，您无法在设置配置时访问其它配置内容。
+
+&emsp;&emsp;如果您希望能够延后计算配置项的值以访问其它配置项，则可以使用该函数定义配置。
+
+&emsp;&emsp;例：
+
+```typescript
+// noinspection TypeScriptUnresolvedReference,JSUnusedLocalSymbols
+
+import {defineXxx, defineLazyInitConfig} from 'swpp-backends'
+
+defineXxx({
+    example: defineLazyInitConfig((runtime, compilation) => {
+        // 这里的代码将在第一次读取配置时执行
+        // do something
+        return _result
+    })
+})
+```
