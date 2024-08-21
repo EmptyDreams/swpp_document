@@ -15,8 +15,9 @@
 &emsp;&emsp;例：
 
 ```typescript
-// noinspection TypeScriptUnresolvedReference
-export const crossDep = defineCrossDep({
+import {defineCrossDep} from 'swpp-backends'
+
+defineCrossDep({
     example: {  // 不推荐！双端的行为不完全一致！但如果是为了进行代码测试，可以临时这么干。
         runOnBrowser: () => console.log('hello'),
         runOnNode: () => console.log('world')

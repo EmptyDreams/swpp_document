@@ -16,23 +16,20 @@ import { Tabs } from 'nextra/components';
 
 &emsp;&emsp;因为配置文件共享主程序的 `package.json`，所以配置文件中可以使用所有主程序中安装的依赖（包括 swpp 本身）。
 
-## 导出配置的方法
+## 修改配置的方法
 
-&emsp;&emsp;导出配置：指将您的配置暴露给调用程序（也就是 swpp），swpp 无法读取您未导出的内容。
+&emsp;&emsp;swpp 中统一使用 `defineXxx` 函数定义配置，其中 `defineConfig` 用于一次性定义所有配置，其余 `defineXxx` 用于定义某一个分类下的配置。
 
-&emsp;&emsp;swpp 支持两种导出配置的方法，一种是使用 `export default`，一种是使用 `export const xxx`，两种方式最终效果相同，可以根据个人喜好选择一种使用。
+&emsp;&emsp;非常需要注意的是，配置文件中必须在加载完毕前调用 `define` 系列函数，否则将会导致错误，所以在异步任务中调用 `define` 是非常危险的操作。对于 js/ts 功底不好的同学来说，您只需要记住 `define` 系列的函数必须在顶层调用即可（可以嵌套在 `if` 等语句中）。
 
-&emsp;&emsp;注意：swpp 内部通过判断配置文件是否导出了 `default` 来判断您使用的是哪一种导出方法，所以这两种方法并不能共存，如果您导出了 `default`，swpp 将忽略其它所有导出的内容。
-
-<Tabs items={['default', 'const']}>
+<Tabs items={['defineConfig', '分类配置']}>
     <Tabs.Tab>
-        &emsp;&emsp;当您使用 `export default` 导出配置时，您可以借助 `SwppConfigTemplate` 类型，这个类型可以帮助您进行配置设置，IDE
-        支持的话还可以提供自动补全。下面是一段示例代码，其中列出了 swpp 内置的所有可调节配置分类：
+        &emsp;&emsp;下面是一段示例代码，其中列出了 swpp 内置的所有可调节配置分类：
 
         ```typescript
         import {defineConfig} from 'swpp-backends'
 
-        export default defineConfig({
+        defineConfig({
 
             compilationEnv: {},
             crossEnv: {},
@@ -48,7 +45,7 @@ import { Tabs } from 'nextra/components';
         ```
     </Tabs.Tab>
     <Tabs.Tab>
-        &emsp;&emsp;当您使用 `export const` 导出配置时，您需要使用具体的子类型来帮助您进行配置设置，IDE 支持的话还可以提供自动补全。下面是一段示例代码，其中列出了 swpp 内置的所有可调节配置分类：
+        &emsp;&emsp;下面是一段示例代码，其中列出了 swpp 内置的所有可调节配置分类：
 
         ```typescript
         import {
@@ -58,21 +55,21 @@ import { Tabs } from 'nextra/components';
             defineRuntimeCore, defineRuntimeDep, defineRuntimeEvent
         } from 'swpp-backends'
 
-        export const compilationEnv = defineCompilationEnv({})
+        defineCompilationEnv({})
 
-        export const crossEnv = defineCrossEnv({})
+        defineCrossEnv({})
 
-        export const runtimeDep = defineRuntimeDep({})
+        defineRuntimeDep({})
 
-        export const crossDep = defineCrossDep({})
+        defineCrossDep({})
 
-        export const runtimeCore = defineRuntimeCore({})
+        defineRuntimeCore({})
 
-        export const runtimeEvent = defineRuntimeEvent({})
+        defineRuntimeEvent({})
 
-        export const domConfig = defineDomConfig({})
+        defineDomConfig({})
 
-        export const modifier = defineModifier({})
+        defineModifier({})
         ```
     </Tabs.Tab>
 

@@ -23,7 +23,7 @@
 ```typescript
 import {defineDomConfig} from 'swpp-backends'
 
-export const domConfig = defineDomConfig({
+defineDomConfig({
     registry: () => {
         const value = (() => {
             const sw = navigator.serviceWorker

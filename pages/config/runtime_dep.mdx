@@ -16,7 +16,7 @@ import {defineRuntimeDep} from 'swpp-backends'
 // function invokeExample() {
 //     example()
 // }
-export const runtimeDep = defineRuntimeDep({
+defineRuntimeDep({
     example: () => console. log('hello'),
     invokeExample: function() {
         example()
@@ -96,7 +96,7 @@ let STORAGE_TIMESTAMP: string
 ```typescript
 import {defineRuntimeDep} from 'swpp-backends'
 
-export const runtimeDep = defineRuntimeDep({
+defineRuntimeDep({
     markCacheInvalid: (request: RequestInfo | URL) =>
         caches.open(CACHE_NAME).then(cache => cache.delete(request)),
     isValidCache: () => true

@@ -7,7 +7,7 @@
 ```typescript
 import {defineModifier} from 'swpp-backends'
 
-export const modifier = defineModifier({
+defineModifier({
 
 })
 ```
@@ -35,7 +35,7 @@ export const modifier = defineModifier({
 
 import {defineModifier} from 'swpp-backends'
 
-export const modifier = defineModifier({
+defineModifier({
     build: () => {
         // do something
         return {
@@ -57,7 +57,7 @@ export const modifier = defineModifier({
 
 import {defineModifier} from 'swpp-backends'
 
-export const modifier = defineModifier({
+defineModifier({
     registry: (runtime: RuntimeData, compilation: CompilationData) => {
         runtime.crossEnv.append('your_key', {
             // 使用 default 定义缺省值
@@ -86,7 +86,7 @@ export const modifier = defineModifier({
 
 import {defineModifier} from 'swpp-backends'
 
-export const modifier = defineModifier({
+defineModifier({
     // 这个示例的功能是在配置中填写的有 `key_a` 后修改 `key_b` 的值
     dynamicUpdate: (runtime: RuntimeData, compilation: CompilationData) => {
         if (runtime.crossEnv.hasValue('key_a')) {

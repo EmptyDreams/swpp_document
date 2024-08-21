@@ -21,7 +21,7 @@ import {defineRuntimeEvent} from 'swpp-backends'
 // 这个问题暂时没有特别好的解决方案，把类型改成 any 或者 Event 然后用 @ts-ignore 忽略错误即可。
 
 // noinspection JSUnusedLocalSymbols
-export const runtimeEvent = defineRuntimeEvent({
+defineRuntimeEvent({
     fetch: (event: FetchEvent) => {
         // do something
     }

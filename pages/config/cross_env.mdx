@@ -11,12 +11,12 @@
 &emsp;&emsp;例：
 
 ```typescript
+import {defineCrossEnv} from 'swpp-backends'
+
 // 该代码将在 sw.js 中插入一系列常量，同时在编译期也可以动态读取
 // const EXAMPLE = 'hello swpp'
 // const FUN_EXAMPLE = 'fun hello swpp'
-
-// noinspection TypeScriptUnresolvedReference
-export const crossEnv = defineCrossEnv({
+defineCrossEnv({
     EXAMPLE: 'hello swpp',
     FUN_EXAMPLE: function() {
         return 'fun ' + this.crossEnv.read('EXAMPLE')
