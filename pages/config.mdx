@@ -97,3 +97,7 @@ import { Tabs } from 'nextra/components';
 4. 依次将 `runtime` `compilation` 和 `cross` 的配置写入到 KV 库当中
 5. 调用 `modifier#dynamicUpdate` 函数
 6. 冻结所有 KV 库
+
+## 配置优先级
+
+&emsp;&emsp;不同配置文件的优先级依据前端的实现不同而不同，同一个配置文件中越早调用的 `define` 函数优先级越高。
