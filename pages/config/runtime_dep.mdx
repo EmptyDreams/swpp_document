@@ -207,7 +207,7 @@ let CACHE_NAME: string
 + swpp 会严格按照返回的数组中的内容进行并发请求，如果您返回的数组中不包含原有的 `Request`，swpp 将认为您希望跳过原有的资源地址。
 + 开启该功能后，会较为显著地增加网络压力、流量消耗和 CPU 压力。
 + 请勿滥用该功能（包括但不限于使用该功能实现类似于将网站部署到 NPM CDN 上的功能），这有违道德、容易被 CDN 封杀。
-+ 自定义前请阅读：[#isfetchsuccessful]
++ 自定义前请阅读：[#isFetchSuccessful](#isfetchsuccessful)
 
 ## getStandbyRequests
 
@@ -226,7 +226,7 @@ let CACHE_NAME: string
 
 + 返回的列表中不应当包含原始 `Request`，swpp 会先尝试访问原始 `Request`。
 + 应当把最可能成功、速度最快的链接设置为原始 `Request`，否则网站加载可能会出现比较大的延迟。
-+ 自定义前请阅读：[#isfetchsuccessful]
++ 自定义前请阅读：[#isFetchSuccessful](#isfetchsuccessful)
 
 ## fetchFastest
 
