@@ -52,7 +52,7 @@ export default {
   ),
   sidebar: {
     defaultMenuCollapseLevel: 1,
-    // autoCollapse: true
+    autoCollapse: true
   },
   project: {
     link: 'https://github.com/EmptyDreams/swpp-backends',
