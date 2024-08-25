@@ -1,1 +1,15 @@
-// TODO: 全局样式
+/* 全局样式 */
+
+main {
+
+    // 博文图片居中显示
+    img {
+        margin: auto;
+    }
+
+    // 表格横向滚动条取消常驻
+    table {
+        overflow-x: auto !important;
+    }
+
+}
