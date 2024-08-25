@@ -19,7 +19,8 @@
     "nextra-theme-docs": "^2.13.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "redish101-shared-config": "^1.0.0"
+    "redish101-shared-config": "^1.0.0",
+    "sass": "^1.77.8"
   },
   "devDependencies": {
     "@types/node": "22.3.0",
