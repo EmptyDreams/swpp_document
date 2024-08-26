@@ -1,0 +1,59 @@
+import { Tabs } from 'nextra/components';
+
+# 通过 CLI 指令构建
+
+&emsp;&emsp;如果您使用的平台不是 NodeJs 或框架没有专门支持 swpp 的包，那么可以使用 CLI 指令构建 swpp 内容，但是通过 CLI 构建 swpp 相比于使用专门适配框架的软件包要麻烦一些，需要运行指令才能在本地预览 Service Worker。
+
+## 安装
+
+&emsp;&emsp;运行下面指令即可完成安装：
+
+<Tabs items={['局部安装', '全局安装']}>
+  <Tabs.Tab>
+    ```bash
+    npm install swpp-backends@3
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    npm install swpp-backends@3 -g
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+## 配置 CLI
+
+&emsp;&emsp;您需要在项目的某一个位置创建 CLI 的配置文件，默认路径是：`./swpp.cli.json`（路径相对于运行指令的位置），您可以通过指令修改该路径。然后在其中填写如下内容：
+
+```json
+{
+  "webRoot": "这里填发布目录（就是存放最终生成的 html、css 等文件的目录）的绝对或相对路径",
+  "configFiles": [
+    "这里填 js/ts 配置文件的相对路径（绝对路径也可以，但是推荐相对路径）",
+    "当填写多项时，越早出现的配置项优先级越高"
+  ],
+  "domJsPath": "dom js 要生成到的路径，相对于 webRoot，必须以 `/` 开头，以 `.js` 结尾",
+  "excludes": [
+    "如果部分 html 文件不需要在其中插入 <script>，那么在这里可以填写正则表达式忽略这些文件，区分大小写"
+  ]
+}
+```
+
+&emsp;&emsp;其中 `webRoot` 与 `configFiles` 为必填项，其余两项可选。
+
+### 指令
+
+&emsp;&emsp;您可以运行 `swpp -h` 指令获取帮助信息，下面是一些常用的指令：
+
++ `swpp -v`: 查看版本
++ `swpp -b`: 构建 swpp
+
+## 创建 swpp 配置文件
+
+&emsp;&emsp;在项目根目录下创建 `swpp.config.ts` 文件（您可以通过 `json` 配置修改配置文件所在的路径）。
+
+&emsp;&emsp;CLI 不会自动为您填写配置文件中的 `DOMAIN_HOST` 字段，所以您**需要**手动填写该字段。
+
+---
+
+&emsp;&emsp;到这里您就完成了 swpp 安装的所有流程，但是此时您尚未启用 swpp 的任何功能，所以并不能给您的网站带来任何改善，继续阅读文档以了解 swpp 的配置项。
