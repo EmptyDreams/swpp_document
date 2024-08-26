@@ -14,11 +14,13 @@ import {defineConfig, defineXxx} from 'swpp-backends'
 // noinspection TypeScriptUnresolvedReference
 defineConfig({
     runtimeDep: {
-      // 注意这些工具函数可以也只能在配置项名称后方使用，且不可嵌套使用
+      // 注意这些工具函数可以也只能在配置项名称后方使用
       example: defineXxx(...args)
     }
 })
 ```
+
+&emsp;&emsp;⚠️注意：如非特别声明，这些 `define` 函数不能嵌套使用。
 
 ## 不可分割配置
 
@@ -79,6 +81,27 @@ defineXxx({
 1. 仅有在两个对象中存在使用 `defineIndivisibleConfig` 定义的配置时才会禁用配置合并，假设现在有 `A` > `B` > `C` 三个配置项都产生了冲突，其中 `A` 优先级最高，但是只有 `C` 使用了 `defineIndivisibleConfig`，那么 `A` 将与 `B` 完成合并后再与 `C` 进行尝试合并，由于 `C` 不能分割且优先级低，所以最终将产生 `A` 与 `B` 合并后的结果。
 2. 如果次级配置文件中使用 `defineIndivisibleConfig` 定义了某项配置，如果您需要覆盖这个配置，注意您无法使用这个配置中的内容，需要手动重写整个配置项。
 3. 除 `IndivisibleConfig` 外，所有的 `RuntimeSpecialConfig` 都会携带与 `IndivisibleConfig` 相同的副作用。
+
+## 上下文配置
+
+&emsp;&emsp;继承关系：`ContextConfig` \<- `SpecialConfig`
+
+&emsp;&emsp;有些时候您可能希望在本地和远程环境使用不一样的配置，如果是大量的配置项不相同，那么您可以使用两个配置文件来编写配置，然后依靠前端实现来区分本地和远程的配置文件；如果是少量配置不相同，那么可以直接使用该函数来进行定义。
+
+```typescript
+import {defineXxx, defineContextConfig} from 'swpp-backends'
+
+defineXxx({
+    example: defineContextConfig({
+        dev: 'hello dev',
+        prod: 'hello prod'
+    })
+})
+```
+
+&emsp;&emsp;这样，`example` 在开发环境将是 `hello dev`，在生产环境将是 `hello prod`。
+
+&emsp;&emsp;该配置项内可嵌套 `RuntimeSpecialConfig`。
 
 ## 不可缓存配置
 
