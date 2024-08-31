@@ -89,12 +89,12 @@ defineXxx({
 &emsp;&emsp;有些时候您可能希望在本地和远程环境使用不一样的配置，如果是大量的配置项不相同，那么您可以使用两个配置文件来编写配置，然后依靠前端实现来区分本地和远程的配置文件；如果是少量配置不相同，那么可以直接使用该函数来进行定义。
 
 ```typescript
-import {defineXxx, defineContextConfig} from 'swpp-backends'
+import {defineXxx, defineContextConfig, defineLazyInitConfig} from 'swpp-backends'
 
 defineXxx({
     example: defineContextConfig({
         dev: 'hello dev',
-        prod: 'hello prod'
+        prod: defineLazyInitConfig(() => 'hello prod')
     })
 })
 ```
