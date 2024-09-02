@@ -27,19 +27,45 @@ import { Tabs } from 'nextra/components';
 
 ```json
 {
-  "webRoot": "这里填发布目录（就是存放最终生成的 html、css 等文件的目录）的绝对或相对路径",
+  "webRoot": "这里填发布目录",
   "configFiles": [
-    "这里填 js/ts 配置文件的相对路径（绝对路径也可以，但是推荐相对路径）",
-    "当填写多项时，越早出现的配置项优先级越高"
-  ],
-  "domJsPath": "dom js 要生成到的路径，相对于 webRoot，必须以 `/` 开头，以 `.js` 结尾",
-  "excludes": [
-    "如果部分 html 文件不需要在其中插入 <script>，那么在这里可以填写正则表达式忽略这些文件，区分大小写"
+    "这里填 js/ts 配置文件的相对路径（绝对路径也可以，但是推荐相对路径）"
   ]
 }
 ```
 
-&emsp;&emsp;其中 `webRoot` 与 `configFiles` 为必填项，其余两项可选。
+&emsp;&emsp;配置项的具体解释如下（`?:` 表示可选，`:` 表示必填）：
+
+```typescript
+export interface SwppCliConfig {
+
+    /** 网站根目录（就是存放最终生成的 html、css 等文件的目录）的绝对或相对路径 */
+    webRoot: string
+    /** 配置文件所在的相对路径（越靠前优先级越高） */
+    configFiles: string[]
+    /** dom js 的相对路径（相对于网站根目录，以 `/` 开头 `.js` 结尾），默认值为 `/sw-dom.js` */
+    domJsPath?: string
+    /**
+      * 需要被排除的 html 文件名，正则表达式。
+      * 如果部分 html 文件不需要在其中插入 <script>，那么在这里可以填写正则表达式忽略这些文件，区分大小写。
+      * 默认为空。
+      */
+    excludes?: string[]
+    /** 是否生成 sw 文件。默认为 true */
+    serviceWorker?: boolean
+    /** 是否向 HTML 中插入注册代码。默认为 true */
+    auto_register?: boolean
+    /** 是否自动生成 DOM JS 并在 HTML 插入 <script>。默认为 true */
+    gen_dom?: boolean
+    /**
+      * diff json 的相对路径（相对于项目根目录）或绝对路径（以 .json 结尾）。
+      * 该文件当中存储本次构建更新的缓存的列表。
+      * 留空表示不生成，该项用于辅助用户使用脚本自动刷新 CDN 缓存。
+      */
+    diffJsonPath?: string
+
+}
+```
 
 ### 指令
 
