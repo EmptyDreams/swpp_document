@@ -114,10 +114,18 @@ interface NetworkFileHandler {
     /** 获取指定文件的类型 */
     getUrlContentType(url: string, response?: Response): string
 
+    /**
+     * 判断请求失败后是否重试
+     * @param request 请求内容
+     * @param count 已重试次数（不包括本次）
+     * @param err 失败的原因
+     */
+    isRetry(request: RequestInfo | URL, count: number, err: any): boolean
+
 }
 ```
 
-&emsp;&emsp;默认的实现已经可以满足绝大多数要求，大多数情况下不需要修改 `fetch` 和 `getUrlContentType`。
+&emsp;&emsp;默认的实现已经可以满足绝大多数要求，大多数情况下不需要修改 `fetch` 和 `getUrlContentType`。对于内置的 `FiniteConcurrencyFetcher` 实现，还在 `NetworkFileHandler` 基础上额外添加了 `retryLimit: number` 字段，默认为 `3`，用于控制请求超时后的最大重试次数。
 
 &emsp;&emsp;默认实现使用 NodeJS 内置的 `fetch` 函数拉取文件，对于使用低版本 NodeJS 的用户，则需要自行覆盖 `fetch` 的实现。
 
