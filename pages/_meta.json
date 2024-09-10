@@ -3,5 +3,6 @@
   "features": "功能介绍",
   "quickstart": "快速开始",
   "config": "配置文件",
-  "qa": "问题速查"
+  "qa": "问题速查",
+  "debug": "调试指南"
 }
