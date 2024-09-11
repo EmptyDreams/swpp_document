@@ -1,0 +1,61 @@
+# 常用配置列表
+
+&emsp;&emsp;在本章中，将为您列出一些常用的配置项，以方便您快速配置 swpp。为了辅助您的阅读，本章中会使用下列标记：
+
++ 🌟 - 表示如果希望启用指定功能，则该项必填；
++ ☀️ - 表示如果希望启用指定功能，该项必填，但部分前端实现有极大概率会自动填充该字段；
++ 🌙 - 表示该项可选（可能是具有默认值，也可能是留空也可以正常工作）
+
+&emsp;&emsp;注意：本文中对于某一项功能并不一定会列出所有与其相关的配置项，仅列出您需要更改的可能性比较大的配置项。
+
+## 基本信息
+
+&emsp;&emsp;为了告诉 swpp 一些基本信息，您可能需要配置下方的内容：
+
++ ☀️ [网站地址（CompilationEnv > DOMAIN_HOST）](/config/compilation_env#domain_host)
++ 🌙 [SW 文件的名称（CompilationEnv > SERVICE_WORKER）](/config/compilation_env#service_worker)
++ 🌙 [数据文件存储目录（CompilationEnv > SWPP_JSON_FILE）](/config/compilation_env#swpp_json_file)
+
+## 数据文件相关
+
+&emsp;&emsp;与数据文件的生成有关的常用配置项如下：
+
++ 🌙 [数据文件存储目录（CompilationEnv > SWPP_JSON_FILE）](/config/compilation_env#swpp_json_file)
++ 🌙 [HTML 数量限制（CompilationEnv > JSON_HTML_LIMIT）](/config/compilation_env#json_html_limit)
++ 🌙 [版本信息长度限制（CompilationEnv > VERSION_LENGTH_LIMIT）](/config/compilation_env#version_length_limit)
+
+## 本地缓存
+
+&emsp;&emsp;如果您需要启用本地缓存，那么您可能需要配置下面的内容：
+
++ 🌟 [缓存规则（CrossDep > matchCacheRule）](/config/cross_dep#matchcacherule)
++ 🌙 [缓存库名称（CrossEnv > CACHE_NAME）](/config/cross_env#cache_name)
++ 🌙 [逃生门（CrossEnv > ESCAPE）](/config/cross_env#escape)
++ 🌙 [请求校验函数（RuntimeDep > isFetchSuccessful）](/config/runtime_dep#isfetchsuccessful)
++ 🌙 [CORS 模式（RuntimeDep > isCors）](/config/runtime_dep#iscors)
++ 🌙 [请求修改器（RuntimeDep > modifyRequest）](/config/runtime_dep#modifyrequest)
++ 🌙 [链接归一化（CrossDep > normalizeUrl）](/config/cross_dep#normalizeurl)
++ 🌙 [版本信息地址（CrossEnv > VERSION_PATH）](/config/cross_env#version_path)
++ 🌙 [前端更新最短间隔（CrossEnv > UPDATE_CD）](/config/cross_env#update_cd)
+
+## 备用 URL
+
+&emsp;&emsp;如果您需要启用备用 URL，那么您可能需要配置下面的内容：
+
++ 🌟 [获取备用 URL 列表（RuntimeDep > getStandbyRequests）](/config/runtime_dep#getstandbyrequests)
++ 🌙 [请求校验函数（RuntimeDep > isFetchSuccessful）](/config/runtime_dep#isfetchsuccessful)
+
+## URL 竞速
+
+&emsp;&emsp;如果您需要启用 URL 竞速，那么您可能需要配置下面的内容：
+
++ 🌟 [获取 URL 竞速列表（RuntimeDep > getFastestRequests）](/config/runtime_dep#getfastestrequests)
++ 🌙 [请求校验函数（RuntimeDep > isFetchSuccessful）](/config/runtime_dep#isfetchsuccessful)
+
+## 构建优化及微调
+
+&emsp;&emsp;如果您想要提升构建速度或者进行一些个性化配置，您可能需要配置下面的内容：
+
++ 🌙 [404 等级设置（CompilationEnv > ALLOW_NOT_FOUND）](/config/compilation_env#allow_not_found)
++ 🌙 [404 检查器（CompilationEnv > isNotFound）](/config/compilation_env#isnotfound)
++ 🌙 [稳定链接筛选器（CompilationEnv > isStable）](/config/compilation_env#isstable)
