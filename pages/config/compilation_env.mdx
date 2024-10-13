@@ -95,6 +95,8 @@ interface Type {
 
 ```typescript
 // noinspection JSUnusedLocalSymbols
+import * as http from 'node:http'
+
 interface NetworkFileHandler {
 
     /** 最大并发量，当并发量超过此限制时，后到达的请求应当等待队列中的请求完成。默认为：100 */
@@ -105,6 +107,8 @@ interface NetworkFileHandler {
     referer: string
     /** 拉取文件时使用的 ua，默认为：swpp-backends */
     userAgent: string
+    /** HTTP 代理 */
+    proxy: http.Agent
     /** 需要额外写入的 header */
     headers: { [name: string]: string }
 
@@ -122,12 +126,30 @@ interface NetworkFileHandler {
      */
     isRetry(request: RequestInfo | URL, count: number, err: any): boolean
 
+    /**
+     * 获取备用 URL 列表
+     * @param url
+     * @return 返回的数组中的第一个元素将用于替换原有的 URL
+     */
+    getStandbyList(url: string | URL): (string | URL)[]
+
 }
 ```
 
 &emsp;&emsp;默认的实现已经可以满足绝大多数要求，大多数情况下不需要修改 `fetch` 和 `getUrlContentType`。对于内置的 `FiniteConcurrencyFetcher` 实现，还在 `NetworkFileHandler` 基础上额外添加了 `retryLimit: number` 字段，默认为 `3`，用于控制请求超时后的最大重试次数。
 
-&emsp;&emsp;默认实现使用 NodeJS 内置的 `fetch` 函数拉取文件，对于使用低版本 NodeJS 的用户，则需要自行覆盖 `fetch` 的实现。
+&emsp;&emsp;如果需要使用本地代理，可以提供 `proxy` 字段，下面以 `https-proxy-agent` 为例：
+
+```typescript
+import { defineCompilationEnv } from 'swpp-backends'
+import { HttpsProxyAgent } from 'https-proxy-agent'
+
+defineCompilationEnv({
+    NETWORK_FILE_FETCHER: {
+        proxy: new HttpsProxyAgent('http://127.0.0.1:10809')
+    }
+})
+```
 
 ## ALLOW_NOT_FOUND
 
