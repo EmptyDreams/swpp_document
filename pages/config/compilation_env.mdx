@@ -94,9 +94,9 @@ interface Type {
 &emsp;&emsp;该配置项用于修改 swpp 从网络中拉取文件的行为，其类型定义如下：
 
 ```typescript
-// noinspection JSUnusedLocalSymbols
 import * as http from 'node:http'
 
+// noinspection JSUnusedLocalSymbols
 interface NetworkFileHandler {
 
     /** 最大并发量，当并发量超过此限制时，后到达的请求应当等待队列中的请求完成。默认为：100 */
