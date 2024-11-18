@@ -4,5 +4,6 @@
   "quickstart": "快速开始",
   "config": "配置文件",
   "qa": "问题速查",
-  "debug": "调试指南"
+  "debug": "调试指南",
+  "develop": "开发者指南"
 }

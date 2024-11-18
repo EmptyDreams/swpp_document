@@ -1,0 +1,197 @@
+# 开发者指南
+
+&emsp;&emsp;本章中我们将简单介绍如何为 swpp 进行平台适配。
+
+## 依赖安装
+
+&emsp;&emsp;在 `package.json` 的 `dependencies` 中添加 `swpp-backends` 的依赖即可完成依赖的安装。
+
+&emsp;&emsp;但是这种方法在 `swpp-backends` 更新时，平台实现也需要同步更新，使用起来不是特别方便，所以在这里我们推荐使用 `peerDependencies`。
+
++ [NPM 文档](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#peerdependencies)
++ [知乎中文介绍](https://zhuanlan.zhihu.com/p/666454541)
+
+## 平台适配
+
+&emsp;&emsp;swpp 已经封装了大部分代码，进行适配时只需要线性调用接口即可，您可以参考 `swpp-backends` 中 `cli.ts` 和 `hexo-swpp` 的代码。
+
+&emsp;&emsp;插件必要的初始化部分按照如下流程进行（部分流程之间无先后顺序）：
+
+1. 初始化 `swpp-backends` 的配置（`ConfigLoader`）
+2. 扫描网站的资源（`ResourcesScanner`）
+3. 生成 sw 文件
+4. 必要时修改已有的 HTML 文件
+5. 将生成的内容写入到指定位置
+
+&emsp;&emsp;下面我们介绍下常用的一些接口：
+
+### 加载 swpp 配置
+
+&emsp;&emsp;加载配置相当简单，`swpp-backends` 已经将所有操作封装到了 `ConfigLoader` 当中，使用如下代码即可定义一个加载器：
+
+```typescript
+import {ConfigLoader} from 'swpp-backends'
+
+// noinspection JSUnusedLocalSymbols
+const loader = new ConfigLoader();
+```
+
+&emsp;&emsp;调用 `ConfigLoader#load` 即可读取指定配置，参数为配置文件（js 或 ts）的绝对路径，越早被加载的配置项优先级越高。
+
+&emsp;&emsp;有些时候，您可能想要直接从代码中设置一些配置，则可以调用 `ConfigLoader#loadFromCode` 函数，该函数加载的配置的优先级同样取决于调用顺序。如果混用两种加载方式，也是先调用的生效。
+
+&emsp;&emsp;下面，我们给出一个示例：
+
+```typescript
+import {ConfigLoader, AllowNotFoundEnum} from 'swpp-backends'
+
+const loader = new ConfigLoader();
+await loader.loadFromCode({
+    compilationEnv: {
+        DOMAIN_HOST: new URL('http://localhost:8080'),
+        PUBLIC_PATH: 'publish/'
+    }
+})
+/*
+  example.ts:
+  import {AllowNotFoundEnum, defineConfig} from 'swpp-backends'
+  defineConfig({
+      compilationEnv: {
+          DOMAIN_HOST: new URL('https://example.com'),
+          ALLOW_NOT_FOUND: AllowNotFoundEnum.ALLOW_ALL
+      }
+  })
+ */
+await loader.load('config/example.ts')
+await loader.loadFromCode({
+    compilationEnv: {
+        ALLOW_NOT_FOUND: AllowNotFoundEnum.REJECT_ALL
+    }
+})
+```
+
+&emsp;&emsp;最终生效的配置为：
+
+```typescript
+import {AllowNotFoundEnum, defineConfig} from 'swpp-backends'
+
+defineConfig({
+    compilationEnv: {
+        DOMAIN_HOST: new URL('http://localhost:8080'),
+        PUBLIC_PATH: 'publish/',
+        ALLOW_NOT_FOUND: AllowNotFoundEnum.ALLOW_ALL
+    }
+})
+```
+
+### 读取 swpp 配置
+
+&emsp;&emsp;您或许经常需要读取 swpp 配置，以此决定您是否执行某个操作或其它事情。
+
+&emsp;&emsp;当您使用 `ConfigLoader` 加载配置后，可以调用 `generate` 函数生成最终的配置项。`generate` 函数会返回一个对象，其中包含 `compilation` 和 `runtime` 两个字段，前者是构建期可读的配置，后者是运行时可读的配置。这两个字段中会包含若干个 `KeyValueDatabase`，通过调用 `KeyValueDatabase` 的 `read` 函数即可读取指定配置。
+
+&emsp;&emsp;推荐您使用具有完整类型推导和自动补全的 IDE（或编辑器），比如 WebStorm、vscode 等。因为 swpp 为配置项添加了复杂的数据类型（可能会难以阅读），IDE 可以通过这些类型为您提供自动补全和静态检查，以帮助您获取到更佳的开发体验。
+
+&emsp;&emsp;接下来我们举一个🌰：
+
+```typescript
+// noinspection TypeScriptUnresolvedReference,JSUnusedLocalSymbols
+
+import {ConfigLoader} from 'swpp-backends'
+
+// 我们假设您已经有了一个 ConfigLoader
+let loader: ConfigLoader
+const {runtime, compilation} = loader.generate()
+
+// 通过这个代码您可以读取 CrossDep 分支下的 matchCacheRule 配置
+// 当然，您可以使用 compilation.crossDep 代替 runtime.crossDep，这两者指向同一对象
+runtime.crossDep.read('matchCacheRule')
+```
+
+### 扫描网站资源
+
+&emsp;&emsp;swpp 将资源扫描的操作封装到了 `ResourcesScanner` 类中，创建该类的对象并调用其中的 `scanLocalFile` 函数即可完成资源的扫描，该函数接受一个文件路径（相对于项目根目录或绝对路径），该路径应当指向一个文件夹。该函数返回一个 `FileUpdateTracker` 对象，该对象记录了扫描的结果，除非您知道您在干什么，否则不要修改这个对象的内容。
+
+&emsp;&emsp;调用 `FileUpdateTracker` 的 `diff` 函数即可获取到当前本地的文件与上一次构建时的差异，调用后 swpp 将自动从网络拉取上一次构建的结果。该函数返回一个 `JsonBuilder` 对象，除非您知道您在干什么，否则不要修改这个对象的内容。
+
+&emsp;&emsp;调用 `JsonBuilder` 的 `buildJson` 函数，即可生成本次构建的版本文件，通过 `JSON.stringify` 函数将其转换为字符串。
+
+&emsp;&emsp;调用 `FileUpdateTracker` 的 `json` 函数可以获取到本次构建的跟踪器（`tracker`）的 json 序列化字符串，其中包含下一次构建时需要重建的信息，`diff` 函数强依赖上一次构建生成的 `tracker` 的 json。
+
+&emsp;&emsp;如果您想要将本次构建与上次构建的文件差异导出到文件，可以调用 `JsonBuilder#serialize` 函数，该函数将构建器的数据序列化为 json 字符串。
+
+&emsp;&emsp;接下来我们举一个示例：
+
+```typescript
+// noinspection TypeScriptUnresolvedReference
+
+import {ConfigLoader, ResourcesScanner} from 'swpp-backends'
+
+// 我们假设您已经有了一个 ConfigLoader
+let loader: ConfigLoader
+
+async function scannerAndGenerate() {
+    const {compilation} = loader.generate()
+    const scanner = new ResourcesScanner(compilation)
+    const tracker = await scanner.scanLocalFile('public')
+    const jsonBuilder = await tracker.diff()
+    const versionJson = jsonBuilder.buildJson()
+    const trackerJson = tracker.json()
+    return {versionJson, trackerJson}
+}
+
+const {versionJson, trackerJson} = await scannerAndGenerate()
+// do somethings...
+```
+
+### 构建 SW JS
+
+&emsp;&emsp;`SwCompiler` 类用于构建 sw 文件，创建 `SwCompiler` 的对象并调用 `buildSwCode` 函数就能生成 sw 文件的 js 代码字符串。
+
+### 构建 DOM JS
+
+&emsp;&emsp;构建 dom js 的操作相对比较特殊，dom js 的内容被保存到了 `domConfig` 中，这是一个 `KeyValueDatabase`，其中有两个用于构建源代码的函数：
+
+1. `buildJsSource` - 该函数返回一个完整的 JS 文件的字符串，外部使用 `DOMContentLoaded` 事件包裹。
+2. `buildInnerSource` - 该函数返回一个 JS 代码的字符串，内容是 `buildJsSource` 的事件内的代码，通常使用上者即可。
+
+### 写入文件
+
+&emsp;&emsp;根据不同平台，您需要自行决定使用什么方法将 swpp 生成的数据写入到文件中。
+
+&emsp;&emsp;下面是各个文件写入的路径的读取方式：
+
+```typescript
+// noinspection TypeScriptUnresolvedReference
+
+import nodePath from 'path'
+import {ConfigLoader, SwCompiler, UpdateJson} from 'swpp-backends'
+
+// 假设已经有了需要的所有数据
+let loader: ConfigLoader
+const {runtime, compilation} = loader.generate()
+let versionJson: UpdateJson
+let trackerJson: string
+let swJsCode = new SwCompiler()
+const jsonInfo = compilation.compilationEnv.read('SWPP_JSON_FILE')
+const publicRoot = compilationData.compilationEnv.read('PUBLIC_PATH')
+
+// 版本文件的内容
+const versionJsonText = JSON.stringify(versionJson)
+// tracker 文件的内容
+const trackerJsonText = trackerJson
+// sw 文件的内容
+const swJsText = swJsCode.buildSwCode(runtime)
+// dom js 文件的内容
+const domJsText = runtime.domConfig.buildJsSource()
+
+// 版本文件的路径
+const versionJsonPath = nodePath.join(publicRoot, jsonInfo.swppPath, jsonInfo.versionPath)
+// tracker 文件的路径
+const trackerJsonPath = nodePath.join(publicRoot, jsonInfo.swppPath, jsonInfo.trackerPath)
+// sw 文件的路径
+const swJsPath = nodePath.join(publicRoot, compilation.compilationEnv.read('SERVICE_WORKER') + '.js')
+// dom js 文件的路径
+const domJsPath = nodePath.join(publicRoot, '<这里自定义>.js')
+// diff 文件（构建器的序列化结果）的路径完全有您自己把控，swpp 不会依赖这个文件的内容
+```
