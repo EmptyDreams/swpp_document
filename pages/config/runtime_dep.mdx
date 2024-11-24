@@ -135,26 +135,6 @@ let CACHE_NAME: string
 + `data`: 消息内容
 + `goals`: 客户端对象，若该项传入了一个空的数组，表明向所有客户端发送消息
 
-## isFetchSuccessful
-
-|                类型                 | 说明         |
-|:---------------------------------:|:-----------|
-| `(response: Response) => boolean` | 检查一个请求是否成功 |
-
-&emsp;&emsp;该项用于通过 `Response` 检查拉取是否成功，默认通过状态码判断（若状态码返回 `200` `301` `302` `307` `308` 会被视为成功）。
-
-&emsp;&emsp;请注意！！！缓存、URL 竞速、备用 URL 等功能均会使用该函数判断某个请求是否成功，返回错误地返回 `true` 或 `false` 会导致功能异常：
-
-+ 对于缓存：若错误地返回了 `true` 会导致将失败的响应缓存到本地，若错误地返回了 `false` 将会导致结果不被缓存。
-+ 对于 URL 竞速和备用 URL：若错误地返回了 `true` 会导致将一个失败的响应视为成功响应作为最终的响应结果；若错误地返回了 `false` 会错失正确的响应，可能导致最终响应失败。
-
-&emsp;&emsp;部分 CDN 响应错误时不使用状态码进行标记，而是使用响应体中的内容，此时有下面几种解决方案：
-
-+ 避开该 CDN，使用其它 CDN 进行替代
-+ 对于该 CDN 的资源不启用缓存等功能
-+ 自定义 `isFetchSuccessful`，在函数中读取响应体的数据判断请求是否成功。<br/>
-  需要特别注意的是，如果需要在该函数中读取 body，请先克隆响应体，然后读取克隆后的结果，否则会导致后续的流程无法读取响应体内容。
-
 ## fetchWrapper
 
 |                                                 类型                                                  | 说明      |
@@ -207,7 +187,7 @@ let CACHE_NAME: string
 + swpp 会严格按照返回的数组中的内容进行并发请求，如果您返回的数组中不包含原有的 `Request`，swpp 将认为您希望跳过原有的资源地址。
 + 开启该功能后，会较为显著地增加网络压力、流量消耗和 CPU 压力。
 + 请勿滥用该功能（包括但不限于使用该功能实现类似于将网站部署到 NPM CDN 上的功能），这有违道德、容易被 CDN 封杀。
-+ 自定义前请阅读：[#isFetchSuccessful](#isfetchsuccessful)
++ 自定义前请阅读：[/config/cross_dep#isFetchSuccessful](#isfetchsuccessful)
 
 ## getStandbyRequests
 
@@ -226,7 +206,7 @@ let CACHE_NAME: string
 
 + 返回的列表中不应当包含原始 `Request`，swpp 会先尝试访问原始 `Request`。
 + 应当把最可能成功、速度最快的链接设置为原始 `Request`，否则网站加载可能会出现比较大的延迟。
-+ 自定义前请阅读：[#isFetchSuccessful](#isfetchsuccessful)
++ 自定义前请阅读：[/config/cross_dep#isFetchSuccessful](#isfetchsuccessful)
 
 ## fetchFastest
 
