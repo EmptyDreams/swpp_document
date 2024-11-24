@@ -13,7 +13,7 @@
 
 ## 平台适配
 
-&emsp;&emsp;swpp 已经封装了大部分代码，进行适配时只需要线性调用接口即可，您可以参考 `swpp-backends` 中 `cli.ts` 和 `hexo-swpp` 的代码。
+&emsp;&emsp;swpp 已经封装了大部分代码，进行适配时只需要线性调用接口即可，您可以参考 `swpp-backends` 中的 `cli.ts` 和 `hexo-swpp` 的代码。
 
 &emsp;&emsp;插件必要的初始化部分按照如下流程进行（部分流程之间无先后顺序）：
 
@@ -22,6 +22,36 @@
 3. 生成 sw 文件
 4. 必要时修改已有的 HTML 文件
 5. 将生成的内容写入到指定位置
+
+&emsp;&emsp;通常您可以直接使用 `BasicActions` 类，该类中已经为您封装了通用的构建流程：
+
+```typescript
+import {BasicActions} from 'swpp-backends'
+
+// 其中的路径均相对于项目根目录
+const actions = await BasicActions.build(
+    'dev',            // 环境类型，填 'dev' 或 'prod'
+    '<public path>',  // 网站的根目录
+    true,             // 是否生成 sw.js
+    '<dom js path>',  // DOM JS 的生成目录，留空表示不生成
+    '<diff json path>'// diff json 的生成目录，留空表示不生成
+)
+
+// 加载配置文件
+await actions.loadConfig('<config js/ts path>')
+// 您也可以直接从代码中加载
+// await actions.loadConfig({xxx})
+// 或批量加载
+// await actions.loadConfigs([{}, '<config1 js/ts path>', xxx])
+
+// 构建配置
+actions.buildConfig()
+
+// 构建文件
+await actions.buildFiles()
+```
+
+&emsp;&emsp;您可以根据自己的需要在函数调用前后添加您的代码，以实现更复杂的功能。如果 `BasicActions` 无法满足您的需求，您也可以绕过 `BasicActions` 完全自己编写代码。
 
 &emsp;&emsp;下面我们介绍下常用的一些接口：
 
