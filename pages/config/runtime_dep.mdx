@@ -191,9 +191,9 @@ let CACHE_NAME: string
 
 ## getStandbyRequests
 
-|                                  类型                                  | 说明     |
-|:--------------------------------------------------------------------:|:-------|
-| `(request: Request) => {t: number, l: () => Request[]} \| undefined` | 获取备用列表 |
+|                                              类型                                               | 说明     |
+|:---------------------------------------------------------------------------------------------:|:-------|
+| `(request: Request) => {t: number, r: Request \| undefined, l: () => Request[]} \| undefined` | 获取备用列表 |
 
 &emsp;&emsp;该项用于启用备用 URL，返回任意转换为 `false` 值均表示对于给定的资源不启用备用 URL。
 
@@ -201,10 +201,11 @@ let CACHE_NAME: string
 
 + `t`: 超时时间（毫秒），如果拉取原始 `Request` 的时间超过了这个时间，将会开始并发拉取备用 URL。
 + `l`: 备用 Request 列表的 getter，设计成这样是避免在无需备用 URL 时生成列表占用 CPU、内存资源。
++ `r`: 替换原始 URL，不设置为 `undefined` 表示不进行替换
 
 &emsp;&emsp;注意事项：
 
-+ 返回的列表中不应当包含原始 `Request`，swpp 会先尝试访问原始 `Request`。
++ 返回的 `l` 列表中不应当包含原始 `Request`，swpp 会先尝试访问原始 `Request`。
 + 应当把最可能成功、速度最快的链接设置为原始 `Request`，否则网站加载可能会出现比较大的延迟。
 + 自定义前请阅读：[/config/cross_dep#isFetchSuccessful](#isfetchsuccessful)
 
@@ -220,9 +221,9 @@ let CACHE_NAME: string
 
 ## fetchStandby
 
-|                                                         类型                                                          | 说明            |
-|:-------------------------------------------------------------------------------------------------------------------:|:--------------|
-| `(request: Request, standbyRequests: {t: number, l: () => Request[]}, optional?: RequestInit) => Promise<Response>` | 通过备用 URL 拉取文件 |
+|                                                                      类型                                                                      | 说明            |
+|:--------------------------------------------------------------------------------------------------------------------------------------------:|:--------------|
+| `(request: Request, standbyRequests: {t: number, r: Request \| undefined, l: () => Request[]}, optional?: RequestInit) => Promise<Response>` | 通过备用 URL 拉取文件 |
 
 &emsp;&emsp;该项用于执行备用 URL 功能，默认实现已经能满足大部分需求，一般情况下无需覆盖。
 
