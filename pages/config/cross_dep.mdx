@@ -79,6 +79,8 @@ defineCrossDep({
 - 如果链接以 `/xxx.html` 结尾会被替换为 `/xxx`
 - 否则保持原链接
 
+&emsp;&emsp;为了降低代码复杂度，swpp 会在执行 `normalize` 前强制把链接的 `query` 和 `hash` 擦除，如果您确实需要保留 `query` 或 `hash`，请自行重写 `handleFetchEvent` `handleUpdate` 的代码。
+
 ## matchUpdateRule
 
 |                                     类型                                      | 说明       | 默认值 |
