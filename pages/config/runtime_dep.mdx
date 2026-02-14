@@ -4,11 +4,14 @@
 
 &emsp;&emsp;对于每一项配置 `<KEY>: <function>`：`<KEY>` 是函数名（推荐使用小写驼峰式命名），`<function>` 是函数体。
 
-&emsp;&emsp;如果函数体中需要使用其它运行时的环境变量、函数依赖等内容，直接调用即可，如果需要避免 IDE 报错/ 警告，可以在配置文件中声明一些不导出的变量，以此假装上下文中存在该函数。 TS 还可以使用 @ts-ignore 忽略相关的错误。
+&emsp;&emsp;如果函数体中需要使用其它运行时的环境变量、函数依赖等内容，直接调用即可，如果需要避免 IDE 报错 / 警告，可以在配置文件中声明一些不导出的变量，以此假装上下文中存在该函数。TS 还可以使用 `@ts-ignore` 忽略相关的错误。
 
 &emsp;&emsp;例：
 ```typescript
 import {defineRuntimeDep} from 'swpp-backends'
+
+// 这行代码用来消除 IDE 警告
+declare const example: () => void
 
 
 // 该代码将在 sw. js 中创建一系列函数：
@@ -22,12 +25,6 @@ defineRuntimeDep({
         example()
     }
 })
-// 如果为了避免 IDE 报错，还可以在文件任意一个位置编写类似的代码：
-// let example: () => void       good
-// let example = any             不推荐，因为丢失了类型，会影响 IDE 的自动补全和静态类型推断
-// 或者直接在函数调用的位置使用 @ts-ignore 也可以避免报错，同样不推荐，理由同上
-
-let example: () => void // 这行代码用来消除 IDE 警告
 ```
 
 ## matchFromCaches
@@ -47,6 +44,10 @@ let example: () => void // 这行代码用来消除 IDE 警告
 &emsp;&emsp;该项用于向缓存写入或更新一条数据，默认实现如下：
 
 ```typescript
+// 用于消除 IDE 报错
+declare const CACHE_NAME: string
+declare const STORAGE_TIMESTAMP: string
+
 /**
   * @param request 请求信息
   * @param response 响应体
@@ -65,10 +66,6 @@ async (request: RequestInfo | URL, response: Response, date?: boolean) => {
     const cache = await caches.open(CACHE_NAME);
     await cache.put(request, response);
 };
-
-// 用于消除 IDE 报错，值在其它配置项中插入到 SW
-let CACHE_NAME: string
-let STORAGE_TIMESTAMP: string
 ```
 
 ## markCacheInvalid
@@ -77,7 +74,7 @@ let STORAGE_TIMESTAMP: string
 |:------------------------------------------------:|:------------|
 | `(request: RequestInfo \| URL) => Promise<void>` | 标记一个缓存为失效缓存 |
 
-&emsp;&emsp;swpp 默认使缓存失效的方法是在响应体当中写入一个 [特定的 header](/config/cross_env#invalid_key)，当尝试使用这个缓存时，检查缓存是否过期，如果过期则尝试从网络拉取最新内容。
+&emsp;&emsp;swpp 默认实现不会在标记缓存失效时将其立即删除，而是先进行一个标记，随后在下次请求成功后替换掉缓存。
 
 &emsp;&emsp;如果需要的话您可以通过自定义 `markCacheInvalid` 和 `isValidCache`，将缓存失效方法改为立即删除。
 
@@ -96,13 +93,13 @@ let STORAGE_TIMESTAMP: string
 ```typescript
 import {defineRuntimeDep} from 'swpp-backends'
 
+declare const CACHE_NAME: string
+
 defineRuntimeDep({
     markCacheInvalid: (request: RequestInfo | URL) =>
         caches.open(CACHE_NAME).then(cache => cache.delete(request)),
     isValidCache: () => true
 })
-
-let CACHE_NAME: string
 ```
 
 ## readVersion

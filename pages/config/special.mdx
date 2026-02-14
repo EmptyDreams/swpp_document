@@ -4,7 +4,7 @@
 
 &emsp;&emsp;这些工具函数构建的配置项有两大分类：`SpecialConfig` 和 `RuntimeSpecialConfig`，其中 `RuntimeSpecialConfig` 从前者派生。
 
-&emsp;&emsp;从名字很容易可以看出来，`RuntimeSpecialConfig` 的生命周期要更长一些，实际上也正是如此，`SpecialConfig` 的生命周期为构建配置到配置完成导入，而 `RuntimeSpecialConfig` 的生命周期会从构建配置持续到 swpp 结束运行。
+&emsp;&emsp;从名字很容易可以看出来，`RuntimeSpecialConfig` 的生命周期要更长一些。`SpecialConfig` 的生命周期为构建配置到配置完成导入，而 `RuntimeSpecialConfig` 的生命周期会从构建配置持续到 swpp 结束运行。
 
 &emsp;&emsp;这一系列函数的用法非常简单：
 
@@ -80,7 +80,7 @@ defineXxx({
 
 1. 仅有在两个对象中存在使用 `defineIndivisibleConfig` 定义的配置时才会禁用配置合并，假设现在有 `A` > `B` > `C` 三个配置项都产生了冲突，其中 `A` 优先级最高，但是只有 `C` 使用了 `defineIndivisibleConfig`，那么 `A` 将与 `B` 完成合并后再与 `C` 进行尝试合并，由于 `C` 不能分割且优先级低，所以最终将产生 `A` 与 `B` 合并后的结果。
 2. 如果次级配置文件中使用 `defineIndivisibleConfig` 定义了某项配置，如果您需要覆盖这个配置，注意您无法使用这个配置中的内容，需要手动重写整个配置项。
-3. 除 `IndivisibleConfig` 外，所有的 `RuntimeSpecialConfig` 都会携带与 `IndivisibleConfig` 相同的副作用。
+3. 除 `IndivisibleConfig` 外，所有的 `RuntimeSpecialConfig` 都会携带与 `IndivisibleConfig` 相同的副作用（因为 swpp 无法预测对象可能包含的内容）。
 
 ## 上下文配置
 
@@ -133,6 +133,8 @@ defineXxx({
 &emsp;&emsp;默认情况下，swpp 会在加载配置文件时对各项配置的值进行计算，此时就出现了一个问题，您无法在设置配置时访问其它配置内容。
 
 &emsp;&emsp;如果您希望能够延后计算配置项的值以访问其它配置项，则可以使用该函数定义配置。
+
+&emsp;&emsp;注：延迟初始化配置可以读取其它延迟初始化配置，但注意不能形成循环依赖，如果出现循环依赖 swpp 将会抛出异常。
 
 &emsp;&emsp;例：
 

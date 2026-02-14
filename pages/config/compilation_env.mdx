@@ -107,69 +107,16 @@ interface Type {
 
 ## NETWORK_FILE_FETCHER
 
-|          类型          | 说明     |            默认值             |
-|:--------------------:|:-------|:--------------------------:|
-| `NetworkFileHandler` | 拉取网络文件 | `FiniteConcurrencyFetcher` |
+|            类型             | 说明     |   默认值   |
+|:-------------------------:|:-------|:-------:|
+| `() => Promise<Response>` | 拉取网络文件 | `fetch` |
 
 &emsp;&emsp;该配置项用于修改 swpp 从网络中拉取文件的行为，其类型定义如下：
 
-```typescript
-import * as http from 'node:http'
+&emsp;&emsp;默认的实现已经可以满足绝大多数要求，大多数情况下不需要修改，仅在遇到以下情况时需要修改：
 
-// noinspection JSUnusedLocalSymbols
-interface NetworkFileHandler {
-
-    /** 最大并发量，当并发量超过此限制时，后到达的请求应当等待队列中的请求完成。默认为：100 */
-    limit: number
-    /** 单个连接的超时时间（毫秒），默认为：5000 */
-    timeout: number
-    /** 拉取文件时使用的 referer，默认为：https://swpp.example.com */
-    referer: string
-    /** 拉取文件时使用的 ua，默认为：swpp-backends */
-    userAgent: string
-    /** HTTP 代理 */
-    proxy: http.Agent
-    /** 需要额外写入的 header */
-    headers: { [name: string]: string }
-
-    /** 拉取文件 */
-    fetch(request: RequestInfo | URL): Promise<Response>
-
-    /** 获取指定文件的类型 */
-    getUrlContentType(url: string, response?: Response): string
-
-    /**
-     * 判断请求失败后是否重试
-     * @param request 请求内容
-     * @param count 已重试次数（不包括本次）
-     * @param err 失败的原因
-     */
-    isRetry(request: RequestInfo | URL, count: number, err: any): boolean
-
-    /**
-     * 获取备用 URL 列表
-     * @param url
-     * @return 返回的数组中的第一个元素将用于替换原有的 URL
-     */
-    getStandbyList(url: string | URL): (string | URL)[]
-
-}
-```
-
-&emsp;&emsp;默认的实现已经可以满足绝大多数要求，大多数情况下不需要修改 `fetch` 和 `getUrlContentType`。对于内置的 `FiniteConcurrencyFetcher` 实现，还在 `NetworkFileHandler` 基础上额外添加了 `retryLimit: number` 字段，默认为 `3`，用于控制请求超时后的最大重试次数。
-
-&emsp;&emsp;如果需要使用本地代理，可以提供 `proxy` 字段，下面以 `https-proxy-agent` 为例：
-
-```typescript
-import { defineCompilationEnv } from 'swpp-backends'
-import { HttpsProxyAgent } from 'https-proxy-agent'
-
-defineCompilationEnv({
-    NETWORK_FILE_FETCHER: {
-        proxy: new HttpsProxyAgent('http://127.0.0.1:10809')
-    }
-})
-```
+1. 您使用的 NodeJS 版本不支持 `fetch` 函数；
+2. 你需要为 `fetch` 配置代理。
 
 ## ALLOW_NOT_FOUND
 
@@ -184,16 +131,6 @@ defineCompilationEnv({
 - `REJECT_ALL`: 不允许任何形式的 404 错误
 
 &emsp;&emsp;当遇到不允许的 404 错误时 swpp 将直接结束构建，设置合理的报错等级可以防止网站被错误地部署到线上，从而导致历史版本丢失。
-
-## isStable
-
-|           类型            | 说明           |      默认值      |
-|:-----------------------:|:-------------|:-------------:|
-| `(url: URL) => boolean` | 检查一个链接是否是稳定的 | `() => false` |
-
-&emsp;&emsp;该配置项用于检查一个链接是否是稳定的，也就是 URL 不变时，使用这个 URL 拉取到的结果永远不变。
-
-&emsp;&emsp;合理地设置该项可以加快 swpp 构建的速度，减少网络请求的数量。
 
 ## readLocalFile
 
