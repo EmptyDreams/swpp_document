@@ -39,9 +39,9 @@ import { Tabs } from 'nextra/components';
 ```typescript
 export interface SwppCliConfig {
 
-    /** 网站根目录（就是存放最终生成的 html、css 等文件的目录）的绝对或相对路径 */
+    /** 网站根目录（就是存放最终生成的 html、css 等文件的目录）的绝对或相对路径（相对路径是相对于 swpp.cli.json 所在的目录） */
     webRoot: string
-    /** 配置文件所在的相对路径（越靠前优先级越高） */
+    /** 配置文件所在的相对路径（相对于 swpp.cli.json 所在的目录，越靠前优先级越高） */
     configFiles: string[]
     /** dom js 的相对路径（相对于网站根目录，以 `/` 开头 `.js` 结尾），默认值为 `/sw-dom.js` */
     domJsPath?: string
