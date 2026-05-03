@@ -2,6 +2,7 @@
   "name": "swpp_document",
   "version": "1.0.0",
   "description": "",
+  "packageManager": "pnpm@9.14.4",
   "scripts": {
     "dev": "next",
     "build": "next build",
@@ -26,6 +27,7 @@
     "@types/node": "22.3.0",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
-    "prettier": "^3.3.3"
+    "prettier": "^3.3.3",
+    "typescript": "5.5.4"
   }
 }
